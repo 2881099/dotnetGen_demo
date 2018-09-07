@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
@@ -20,22 +22,65 @@ namespace cd.DAL {
 	/// </summary>
 	public abstract partial class SqlHelper {
 		internal static Executer Instance { get; set; }
-		public static ConnectionPool Pool => Instance.Pool;
-		public static void Initialization(IDistributedCache cache, IConfiguration cacheStrategy, string connectionString, ILogger log) {
+		public static ConnectionPool Pool => Instance.MasterPool;
+		public static List<ConnectionPool> SlavePools => Instance.SlavePools;
+		public static void Initialization(IDistributedCache cache, IConfiguration cacheStrategy, string masterConnectionString, string[] slaveConnectionString, ILogger log) {
 			CacheStrategy = cacheStrategy;
-			Instance = new Executer(cache, connectionString, log);
+			Instance = new Executer(cache, masterConnectionString, slaveConnectionString, log);
 		}
 	
 		public static string Addslashes(string filter, params object[] parms) { return Executer.Addslashes(filter, parms); }
 
+		/// <summary>
+		/// 若使用读写分离，查询【从库】条件cmdText.StartsWith("SELECT ")，否则查询【主库】
+		/// </summary>
+		/// <param name="readerHander"></param>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static void ExecuteReader(Action<MySqlDataReader> readerHander, string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteReader(readerHander, CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 若使用读写分离，查询【从库】条件cmdText.StartsWith("SELECT ")，否则查询【主库】
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static object[][] ExecuteArray(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteArray(CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 在【主库】执行
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static int ExecuteNonQuery(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteNonQuery(CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 在【主库】执行
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static object ExecuteScalar(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteScalar(CommandType.Text, cmdText, cmdParms);
 
+		/// <summary>
+		/// 若使用读写分离，查询【从库】条件cmdText.StartsWith("SELECT ")，否则查询【主库】
+		/// </summary>
+		/// <param name="readerHander"></param>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static Task ExecuteReaderAsync(Func<MySqlDataReader, Task> readerHander, string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteReaderAsync(readerHander, CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 若使用读写分离，查询【从库】条件cmdText.StartsWith("SELECT ")，否则查询【主库】
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static Task<object[][]> ExecuteArrayAsync(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteArrayAsync(CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 在【主库】执行
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static Task<int> ExecuteNonQueryAsync(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteNonQueryAsync(CommandType.Text, cmdText, cmdParms);
+		/// <summary>
+		/// 在【主库】执行
+		/// </summary>
+		/// <param name="cmdText"></param>
+		/// <param name="cmdParms"></param>
 		public static Task<object> ExecuteScalarAsync(string cmdText, params MySqlParameter[] cmdParms) => Instance.ExecuteScalarAsync(CommandType.Text, cmdText, cmdParms);
 
 		/// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -14,22 +14,32 @@ namespace cd.Module.Admin.Controllers {
 	public class SysController : Controller {
 		[HttpGet(@"connection")]
 		public object Get_connection() {
-			List<Hashtable> ret = new List<Hashtable>();
-			foreach (var conn in SqlHelper.Pool.AllConnections) {
-				ret.Add(new Hashtable() {
+			var pools = new List<MySql.Data.MySqlClient.ConnectionPool>();
+			pools.Add(SqlHelper.Pool);
+			pools.AddRange(SqlHelper.SlavePools);
+
+			var ret = new List<object>();
+			for (var a = 0; a < pools.Count; a++) {
+				var pool = pools[a];
+				List<Hashtable> list = new List<Hashtable>();
+				foreach (var conn in pool.AllConnections) {
+					list.Add(new Hashtable() {
 						{ "数据库", conn.SqlConnection.Database },
 						{ "状态", conn.SqlConnection.State },
 						{ "最后活动", conn.LastActive },
 						{ "获取次数", conn.UseSum }
 					});
+				}
+				ret.Add(new {
+					Key = a == 0 ? "【主库】" : $"【从库{a - 1}】",
+					FreeConnections = pool.FreeConnections.Count,
+					AllConnections = pool.AllConnections.Count,
+					GetConnectionQueue = pool.GetConnectionQueue.Count,
+					GetConnectionAsyncQueue = pool.GetConnectionAsyncQueue.Count,
+					List = list
+				});
 			}
-			return new {
-				FreeConnections = SqlHelper.Pool.FreeConnections.Count,
-				AllConnections = SqlHelper.Pool.AllConnections.Count,
-				GetConnectionQueue = SqlHelper.Pool.GetConnectionQueue.Count,
-				GetConnectionAsyncQueue = SqlHelper.Pool.GetConnectionAsyncQueue.Count,
-				List = ret
-			};
+			return ret;
 		}
 		[HttpGet(@"connection/redis")]
 		public object Get_connection_redis() {
