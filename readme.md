@@ -1,6 +1,8 @@
 ﻿# cd
 .net core模块化开发框架
 
+本项目由 [【dotnetGen_mysql】](https://github.com/2881099/dotnetGen_mysql) 工具生成
+
 ## Module
 
 	所有业务接口约定在 Module 划分并行开发，互不依赖
