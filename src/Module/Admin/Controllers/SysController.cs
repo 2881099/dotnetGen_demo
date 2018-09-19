@@ -32,6 +32,8 @@ namespace cd.Module.Admin.Controllers {
 				}
 				ret.Add(new {
 					Key = a == 0 ? "【主库】" : $"【从库{a - 1}】",
+					IsAvailable = pool.IsAvailable,
+					UnavailableTime = pool.UnavailableTime,
 					FreeConnections = pool.FreeConnections.Count,
 					AllConnections = pool.AllConnections.Count,
 					GetConnectionQueue = pool.GetConnectionQueue.Count,

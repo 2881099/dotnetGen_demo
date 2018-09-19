@@ -72,7 +72,7 @@ namespace cd.WebHost {
 				app.UseDeveloperExceptionPage();
 
 			cd.BLL.SqlHelper.Initialization(app.ApplicationServices.GetService<IDistributedCache>(), Configuration.GetSection("cd_BLL_ITEM_CACHE"),
-				Configuration["ConnectionStrings:cd_mysql"], null, loggerFactory.CreateLogger("cd_DAL_sqlhelper"));
+				Configuration["ConnectionStrings:cd_mysql"], /* 此参数可以配置【从数据库】 */ null, loggerFactory.CreateLogger("cd_DAL_sqlhelper"));
 
 			app.UseSession();
 			app.UseCors("cors_all");
