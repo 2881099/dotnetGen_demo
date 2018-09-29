@@ -44,7 +44,7 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] bool? Is_deleted, [FromForm] string Title, [FromForm] string Url, [FromForm] int[] mn_Tag) {
+		async public Task<APIReturn> _Add([FromForm] bool Is_deleted, [FromForm] string Title, [FromForm] string Url, [FromForm] int[] mn_Tag) {
 			SongInfo item = new SongInfo();
 			item.Create_time = DateTime.Now;
 			item.Is_deleted = Is_deleted;
@@ -58,7 +58,7 @@ namespace cd.Module.Admin.Controllers {
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] bool? Is_deleted, [FromForm] string Title, [FromForm] string Url, [FromForm] int[] mn_Tag) {
+		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] bool Is_deleted, [FromForm] string Title, [FromForm] string Url, [FromForm] int[] mn_Tag) {
 			SongInfo item = await Song.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
 			item.Create_time = DateTime.Now;

@@ -83,6 +83,7 @@ namespace cd.Model {
 			get { return _Id; }
 			set { _Id = value; }
 		}
+
 		/// <summary>
 		/// 创建时间
 		/// </summary>
@@ -90,6 +91,7 @@ namespace cd.Model {
 			get { return _Create_time; }
 			set { _Create_time = value; }
 		}
+
 		/// <summary>
 		/// 软删除
 		/// </summary>
@@ -97,6 +99,7 @@ namespace cd.Model {
 			get { return _Is_deleted; }
 			set { _Is_deleted = value; }
 		}
+
 		/// <summary>
 		/// 歌名
 		/// </summary>
@@ -104,6 +107,7 @@ namespace cd.Model {
 			get { return _Title; }
 			set { _Title = value; }
 		}
+
 		/// <summary>
 		/// 地址
 		/// </summary>
@@ -111,6 +115,7 @@ namespace cd.Model {
 			get { return _Url; }
 			set { _Url = value; }
 		}
+
 		private List<TagInfo> _obj_tags;
 		public List<TagInfo> Obj_tags => _obj_tags ?? (_obj_tags = BLL.Tag.SelectBySong_id(_Id.Value).ToList());
 		#endregion

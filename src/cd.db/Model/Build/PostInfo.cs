@@ -79,6 +79,7 @@ namespace cd.Model {
 			get { return _Id; }
 			set { _Id = value; }
 		}
+
 		/// <summary>
 		/// 所属主题
 		/// </summary>
@@ -89,6 +90,7 @@ namespace cd.Model {
 				_Topic_id = value;
 			}
 		}
+
 		public TopicInfo Obj_topic {
 			get {
 				if (_obj_topic == null && _Topic_id != null) _obj_topic = BLL.Topic.GetItem(_Topic_id.Value);
@@ -96,6 +98,7 @@ namespace cd.Model {
 			}
 			internal set { _obj_topic = value; }
 		}
+
 		/// <summary>
 		/// 回复内容
 		/// </summary>
@@ -103,6 +106,7 @@ namespace cd.Model {
 			get { return _Content; }
 			set { _Content = value; }
 		}
+
 		/// <summary>
 		/// 创建时间
 		/// </summary>
@@ -110,6 +114,7 @@ namespace cd.Model {
 			get { return _Create_time; }
 			set { _Create_time = value; }
 		}
+
 		#endregion
 
 		public cd.DAL.Post.SqlUpdateBuild UpdateDiy => _Id == null ? null : BLL.Post.UpdateDiy(new List<PostInfo> { this });

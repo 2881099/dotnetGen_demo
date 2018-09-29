@@ -76,6 +76,7 @@ namespace cd.Model {
 				_Song_id = value;
 			}
 		}
+
 		public SongInfo Obj_song {
 			get {
 				if (_obj_song == null && _Song_id != null) _obj_song = BLL.Song.GetItem(_Song_id.Value);
@@ -83,6 +84,7 @@ namespace cd.Model {
 			}
 			internal set { _obj_song = value; }
 		}
+
 		/// <summary>
 		/// 标签
 		/// </summary>
@@ -93,6 +95,7 @@ namespace cd.Model {
 				_Tag_id = value;
 			}
 		}
+
 		public TagInfo Obj_tag {
 			get {
 				if (_obj_tag == null && _Tag_id != null) _obj_tag = BLL.Tag.GetItem(_Tag_id.Value);
@@ -100,6 +103,7 @@ namespace cd.Model {
 			}
 			internal set { _obj_tag = value; }
 		}
+
 		#endregion
 
 		public cd.DAL.Song_tag.SqlUpdateBuild UpdateDiy => _Song_id == null || _Tag_id == null ? null : BLL.Song_tag.UpdateDiy(new List<Song_tagInfo> { this });

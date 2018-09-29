@@ -108,6 +108,7 @@ namespace cd.Model {
 			get { return _Id; }
 			set { _Id = value; }
 		}
+
 		/// <summary>
 		/// 卡片渲染数据
 		/// </summary>
@@ -115,6 +116,7 @@ namespace cd.Model {
 			get { return _Carddata; }
 			set { _Carddata = value; }
 		}
+
 		/// <summary>
 		/// 卡片类型
 		/// </summary>
@@ -122,6 +124,7 @@ namespace cd.Model {
 			get { return _Cardtype; }
 			set { _Cardtype = value; }
 		}
+
 		/// <summary>
 		/// 点击次数
 		/// </summary>
@@ -129,6 +132,7 @@ namespace cd.Model {
 			get { return _Clicks; }
 			set { _Clicks = value; }
 		}
+
 		/// <summary>
 		/// 内容
 		/// </summary>
@@ -136,6 +140,7 @@ namespace cd.Model {
 			get { return _Content; }
 			set { _Content = value; }
 		}
+
 		/// <summary>
 		/// 创建时间
 		/// </summary>
@@ -143,6 +148,7 @@ namespace cd.Model {
 			get { return _Create_time; }
 			set { _Create_time = value; }
 		}
+
 		/// <summary>
 		/// 排序时间
 		/// </summary>
@@ -150,6 +156,7 @@ namespace cd.Model {
 			get { return _Order_time; }
 			set { _Order_time = value; }
 		}
+
 		/// <summary>
 		/// 测试添加的字段
 		/// </summary>
@@ -157,6 +164,7 @@ namespace cd.Model {
 			get { return _Test_addfiled; }
 			set { _Test_addfiled = value; }
 		}
+
 		/// <summary>
 		/// 标题
 		/// </summary>
@@ -164,6 +172,7 @@ namespace cd.Model {
 			get { return _Title; }
 			set { _Title = value; }
 		}
+
 		/// <summary>
 		/// 修改时间
 		/// </summary>
@@ -171,6 +180,7 @@ namespace cd.Model {
 			get { return _Update_time; }
 			set { _Update_time = value; }
 		}
+
 		private List<PostInfo> _obj_posts;
 		public List<PostInfo> Obj_posts => _obj_posts ?? (_obj_posts = BLL.Post.SelectByTopic_id(_Id).Limit(500).ToList());
 		#endregion

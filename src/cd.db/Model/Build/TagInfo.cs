@@ -74,6 +74,7 @@ namespace cd.Model {
 			get { return _Id; }
 			set { _Id = value; }
 		}
+
 		/// <summary>
 		/// 父标签
 		/// </summary>
@@ -84,6 +85,7 @@ namespace cd.Model {
 				_Parent_id = value;
 			}
 		}
+
 		public TagInfo Obj_tag {
 			get {
 				if (_obj_tag == null && _Parent_id != null) _obj_tag = BLL.Tag.GetItem(_Parent_id.Value);
@@ -91,6 +93,7 @@ namespace cd.Model {
 			}
 			internal set { _obj_tag = value; }
 		}
+
 		/// <summary>
 		/// 名称
 		/// </summary>
@@ -98,6 +101,7 @@ namespace cd.Model {
 			get { return _Name; }
 			set { _Name = value; }
 		}
+
 		private List<SongInfo> _obj_songs;
 		public List<SongInfo> Obj_songs => _obj_songs ?? (_obj_songs = BLL.Song.SelectByTag_id(_Id.Value).ToList());
 		private List<TagInfo> _obj_tags;

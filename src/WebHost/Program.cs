@@ -10,6 +10,7 @@ namespace cd.WebHost {
 				.AddCommandLine(args)
 				.Build();
 
+			//dotnet run --urls=http://0.0.0.0:5000
 			var host = new WebHostBuilder()
 				.UseConfiguration(config)
 				.UseKestrel()
