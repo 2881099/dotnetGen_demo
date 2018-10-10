@@ -14,31 +14,17 @@ namespace cd.Module.Admin.Controllers {
 	public class SysController : Controller {
 		[HttpGet(@"connection")]
 		public object Get_connection() {
-			var pools = new List<MySql.Data.MySqlClient.ConnectionPool>();
+			var pools = new List<MySql.Data.MySqlClient.MySqlConnectionPool>();
 			pools.Add(SqlHelper.Pool);
 			pools.AddRange(SqlHelper.SlavePools);
-
 			var ret = new List<object>();
 			for (var a = 0; a < pools.Count; a++) {
 				var pool = pools[a];
-				List<Hashtable> list = new List<Hashtable>();
-				foreach (var conn in pool.AllConnections) {
-					list.Add(new Hashtable() {
-						{ "数据库", conn.SqlConnection.Database },
-						{ "状态", conn.SqlConnection.State },
-						{ "最后活动", conn.LastActive },
-						{ "获取次数", conn.UseSum }
-					});
-				}
 				ret.Add(new {
-					Key = a == 0 ? "【主库】" : $"【从库{a - 1}】",
-					IsAvailable = pool.IsAvailable,
-					UnavailableTime = pool.UnavailableTime,
-					FreeConnections = pool.FreeConnections.Count,
-					AllConnections = pool.AllConnections.Count,
-					GetConnectionQueue = pool.GetConnectionQueue.Count,
-					GetConnectionAsyncQueue = pool.GetConnectionAsyncQueue.Count,
-					List = list
+					pool.Policy.Name,
+					pool.IsAvailable,
+					pool.UnavailableTime,
+					pool.StatisticsFullily
 				});
 			}
 			return ret;
