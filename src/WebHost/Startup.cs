@@ -29,8 +29,8 @@ namespace cd.WebHost {
 				return st;
 			};
 			//去掉以下注释可开启 RedisHelper 静态类
-			var csredis = new CSRedis.CSRedisClient(Configuration["ConnectionStrings:redis1"]); //单redis节点模式
-			RedisHelper.Initialization(csredis);
+			//var csredis = new CSRedis.CSRedisClient(Configuration["ConnectionStrings:redis1"]); //单redis节点模式
+			//RedisHelper.Initialization(csredis);
 		}
 
 		public static IList<ModuleInfo> Modules = new List<ModuleInfo>();
@@ -39,7 +39,7 @@ namespace cd.WebHost {
 
 		public void ConfigureServices(IServiceCollection services) {
 			//下面这行代码依赖redis-server，注释后系统将以memory作为缓存存储的介质
-			services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
+			//services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
 			services.AddSingleton<IConfiguration>(Configuration);
 			services.AddSingleton<IHostingEnvironment>(env);
 			services.AddScoped<CustomExceptionFilter>();
