@@ -4,7 +4,7 @@
 		<AssemblyName>cd.db</AssemblyName>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="dng.Mysql" Version="1.1.21" />
-		<PackageReference Include="CSRedisCore" Version="3.0.5" />
+		<PackageReference Include="dng.Mysql" Version="1.1.22" />
+		<PackageReference Include="CSRedisCore" Version="3.0.13" />
 	</ItemGroup>
 </Project>
