@@ -43,6 +43,20 @@ public static partial class cdExtensionMethods {
 	public static IDictionary[] ToBson(this IEnumerable<TopicInfo> items, Func<TopicInfo, object> func = null) => GetBson(items, func);
 	public static cd.DAL.Topic.SqlUpdateBuild UpdateDiy(this List<TopicInfo> items) => cd.BLL.Topic.UpdateDiy(items);
 
+	public static string ToJson(this UserotherInfo item) => string.Concat(item);
+	public static string ToJson(this UserotherInfo[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<UserotherInfo> items) => GetJson(items);
+	public static IDictionary[] ToBson(this UserotherInfo[] items, Func<UserotherInfo, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<UserotherInfo> items, Func<UserotherInfo, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Userother.SqlUpdateBuild UpdateDiy(this List<UserotherInfo> items) => cd.BLL.Userother.UpdateDiy(items);
+
+	public static string ToJson(this Userother2Info item) => string.Concat(item);
+	public static string ToJson(this Userother2Info[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<Userother2Info> items) => GetJson(items);
+	public static IDictionary[] ToBson(this Userother2Info[] items, Func<Userother2Info, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<Userother2Info> items, Func<Userother2Info, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Userother2.SqlUpdateBuild UpdateDiy(this List<Userother2Info> items) => cd.BLL.Userother2.UpdateDiy(items);
+
 	public static string GetJson(IEnumerable items) {
 		StringBuilder sb = new StringBuilder();
 		sb.Append("[");

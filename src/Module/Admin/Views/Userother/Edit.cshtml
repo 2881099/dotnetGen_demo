@@ -1,0 +1,82 @@
+﻿@{
+	Layout = "";
+	UserotherInfo item = ViewBag.item;
+}
+
+<div class="box">
+	<div class="box-header with-border">
+		<h3 class="box-title" id="box-title"></h3>
+	</div>
+	<div class="box-body">
+		<div class="table-responsive">
+			<form id="form_add" method="post">
+				@Html.AntiForgeryToken()
+				<input type="hidden" name="__callback" value="edit_callback" />
+				<div>
+					<table cellspacing="0" rules="all" class="table table-bordered table-hover" border="1" style="border-collapse:collapse;">
+						<tr>
+							<td>userid</td>
+							<td><input name="Userid" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>chinesename</td>
+							<td><input name="Chinesename" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>created</td>
+							<td><input name="Created" type="text" class="datepicker" /></td>
+						</tr>
+						<tr>
+							<td>doctype</td>
+							<td><input name="Doctype" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>englishname</td>
+							<td><input name="Englishname" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>是否验证</td>
+							<td id="Hasverify_td"><input name="Hasverify" type="checkbox" value="true" /></td>
+						</tr>
+						<tr>
+							<td>id</td>
+							<td><input name="Id" type="text" class="form-control" data-inputmask="'mask': '9', 'repeat': 6, 'greedy': false" data-mask style="width:200px;" /></td>
+						</tr>
+						<tr>
+							<td>idnumber</td>
+							<td><input name="Idnumber" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>images</td>
+							<td><input name="Images" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td width="8%">&nbsp</td>
+							<td><input type="submit" value="@(item == null ? "添加" : "更新")" />&nbsp;<input type="button" value="取消" /></td>
+						</tr>
+					</table>
+				</div>
+			</form>
+
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	(function () {
+		top.edit_callback = function (rt) {
+			if (rt.success) return top.mainViewNav.goto('./?' + new Date().getTime());
+			alert(rt.message);
+		};
+
+		var form = $('#form_add')[0];
+		var item = null;
+		@if (item != null) {
+			<text>
+			item = @Html.Json(item);
+			fillForm(form, item);
+			</text>
+		}
+		top.mainViewInit();
+	})();
+</script>

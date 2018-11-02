@@ -78,6 +78,18 @@ Slots：{RedisHelper.Instance.SlotCache.Count}/16384, {pool.StatisticsFullily}
 			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "添加", 2, "/topic/add");
 			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "编辑", 3, "/topic/edit");
 			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "删除", 4, "/topic/del");
+
+			dir2 = Sysdir.Insert(dir1.Id, DateTime.Now, "userother", 6, "/userother/");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "列表", 1, "/userother/");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "添加", 2, "/userother/add");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "编辑", 3, "/userother/edit");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "删除", 4, "/userother/del");
+
+			dir2 = Sysdir.Insert(dir1.Id, DateTime.Now, "userother2", 7, "/userother2/");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "列表", 1, "/userother2/");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "添加", 2, "/userother2/add");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "编辑", 3, "/userother2/edit");
+			dir3 = Sysdir.Insert(dir2.Id, DateTime.Now, "删除", 4, "/userother2/del");
 			*/
 			return new APIReturn(0, "管理目录已初始化完成。");
 		}
