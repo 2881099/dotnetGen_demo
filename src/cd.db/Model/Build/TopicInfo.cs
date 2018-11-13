@@ -159,6 +159,10 @@ namespace cd.Model {
 
 		/// <summary>
 		/// 测试添加的字段
+		/// 
+		/// 换行
+		/// 
+		/// sdgsdg
 		/// </summary>
 		[JsonProperty] public byte? Test_addfiled {
 			get { return _Test_addfiled; }
