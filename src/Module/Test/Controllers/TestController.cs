@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 using cd.BLL;
 using cd.Model;
 
-namespace cd.Module.Admin.Controllers {
+namespace cd.Module.Test.Controllers {
 	[Route("[controller]")]
 	public class TestController : BaseController {
 		public TestController(ILogger<TestController> logger) : base(logger) { }
