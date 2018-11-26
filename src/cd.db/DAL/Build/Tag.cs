@@ -66,10 +66,12 @@ namespace cd.DAL {
 				GetParameter("?parent_id", MySqlDbType.Int32, 11, Parent_id));
 		}
 
-		public SqlUpdateBuild Update(TagInfo item) {
-			return new SqlUpdateBuild(new List<TagInfo> { item })
-				.SetParent_id(item.Parent_id)
-				.SetName(item.Name);
+		public SqlUpdateBuild Update(TagInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<TagInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("parent_id") == false) sub.SetParent_id(item.Parent_id);
+			if (ignore.ContainsKey("name") == false) sub.SetName(item.Name);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

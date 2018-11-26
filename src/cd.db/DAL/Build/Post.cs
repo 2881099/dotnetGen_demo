@@ -69,11 +69,13 @@ namespace cd.DAL {
 				GetParameter("?topic_id", MySqlDbType.UInt32, 10, Topic_id));
 		}
 
-		public SqlUpdateBuild Update(PostInfo item) {
-			return new SqlUpdateBuild(new List<PostInfo> { item })
-				.SetTopic_id(item.Topic_id)
-				.SetContent(item.Content)
-				.SetCreate_time(item.Create_time);
+		public SqlUpdateBuild Update(PostInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<PostInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("topic_id") == false) sub.SetTopic_id(item.Topic_id);
+			if (ignore.ContainsKey("content") == false) sub.SetContent(item.Content);
+			if (ignore.ContainsKey("create_time") == false) sub.SetCreate_time(item.Create_time);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

@@ -66,10 +66,12 @@ namespace cd.DAL {
 				GetParameter("?userother_id", MySqlDbType.Int64, 20, Userother_id));
 		}
 
-		public SqlUpdateBuild Update(Userother2Info item) {
-			return new SqlUpdateBuild(new List<Userother2Info> { item })
-				.SetChinesename(item.Chinesename)
-				.SetXxxx(item.Xxxx);
+		public SqlUpdateBuild Update(Userother2Info item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<Userother2Info> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("chinesename") == false) sub.SetChinesename(item.Chinesename);
+			if (ignore.ContainsKey("xxxx") == false) sub.SetXxxx(item.Xxxx);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

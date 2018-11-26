@@ -68,8 +68,10 @@ namespace cd.DAL {
 				GetParameter("?tag_id", MySqlDbType.Int32, 11, Tag_id));
 		}
 
-		public SqlUpdateBuild Update(Song_tagInfo item) {
-			return new SqlUpdateBuild(new List<Song_tagInfo> { item });
+		public SqlUpdateBuild Update(Song_tagInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<Song_tagInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

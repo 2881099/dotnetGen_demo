@@ -84,15 +84,17 @@ namespace cd.DAL {
 				GetParameter("?id", MySqlDbType.Int64, 20, Id));
 		}
 
-		public SqlUpdateBuild Update(UserotherInfo item) {
-			return new SqlUpdateBuild(new List<UserotherInfo> { item })
-				.SetChinesename(item.Chinesename)
-				.SetCreated(item.Created)
-				.SetDoctype(item.Doctype)
-				.SetEnglishname(item.Englishname)
-				.SetHasverify(item.Hasverify)
-				.SetIdnumber(item.Idnumber)
-				.SetImages(item.Images);
+		public SqlUpdateBuild Update(UserotherInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<UserotherInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("chinesename") == false) sub.SetChinesename(item.Chinesename);
+			if (ignore.ContainsKey("created") == false) sub.SetCreated(item.Created);
+			if (ignore.ContainsKey("doctype") == false) sub.SetDoctype(item.Doctype);
+			if (ignore.ContainsKey("englishname") == false) sub.SetEnglishname(item.Englishname);
+			if (ignore.ContainsKey("hasverify") == false) sub.SetHasverify(item.Hasverify);
+			if (ignore.ContainsKey("idnumber") == false) sub.SetIdnumber(item.Idnumber);
+			if (ignore.ContainsKey("images") == false) sub.SetImages(item.Images);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

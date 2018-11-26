@@ -26,7 +26,54 @@ namespace cd.BLL {
 			return affrows;
 		}
 
-		public static int Update(TopicInfo item) => dal.Update(item).ExecuteNonQuery();
+		#region enum _
+		public enum _ {
+			Id = 1, 
+			/// <summary>
+			/// 卡片渲染数据
+			/// </summary>
+			Carddata, 
+			/// <summary>
+			/// 卡片类型
+			/// </summary>
+			Cardtype, 
+			/// <summary>
+			/// 点击次数
+			/// </summary>
+			Clicks, 
+			/// <summary>
+			/// 内容
+			/// </summary>
+			Content, 
+			/// <summary>
+			/// 创建时间
+			/// </summary>
+			Create_time, 
+			/// <summary>
+			/// 排序时间
+			/// </summary>
+			Order_time, 
+			/// <summary>
+			/// 测试添加的字段
+			/// 
+			/// 换行
+			/// 
+			/// sdgsdg
+			/// </summary>
+			Test_addfiled, 
+			/// <summary>
+			/// 标题
+			/// </summary>
+			Title, 
+			/// <summary>
+			/// 修改时间
+			/// </summary>
+			Update_time
+		}
+		#endregion
+
+		public static int Update(TopicInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => Update(item, new[] { ignore1, ignore2, ignore3 });
+		public static int Update(TopicInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQuery();
 		public static cd.DAL.Topic.SqlUpdateBuild UpdateDiy(uint Id) => new cd.DAL.Topic.SqlUpdateBuild(new List<TopicInfo> { new TopicInfo { Id = Id } });
 		public static cd.DAL.Topic.SqlUpdateBuild UpdateDiy(List<TopicInfo> dataSource) => new cd.DAL.Topic.SqlUpdateBuild(dataSource);
 		/// <summary>
@@ -71,8 +118,8 @@ namespace cd.BLL {
 		public static TopicInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Topic_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
 
 		public static List<TopicInfo> GetItems() => Select.ToList();
-		public static TopicSelectBuild Select => new TopicSelectBuild(dal);
-		public static TopicSelectBuild SelectAs(string alias = "a") => Select.As(alias);
+		public static SelectBuild Select => new SelectBuild(dal);
+		public static SelectBuild SelectAs(string alias = "a") => Select.As(alias);
 
 		#region async
 		async public static Task<int> DeleteAsync(uint Id) {
@@ -81,7 +128,8 @@ namespace cd.BLL {
 			return affrows;
 		}
 		async public static Task<TopicInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Topic_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
-		async public static Task<int> UpdateAsync(TopicInfo item) => await dal.Update(item).ExecuteNonQueryAsync();
+		public static Task<int> UpdateAsync(TopicInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
+		public static Task<int> UpdateAsync(TopicInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
 		/// <summary>
 		/// 适用字段较少的表；避规后续改表风险，字段数较大请改用 Topic.Insert(TopicInfo item)
@@ -104,7 +152,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(item);
 			return item;
 		}
-		async internal static Task RemoveCacheAsync(TopicInfo item) => await RemoveCacheAsync(item == null ? null : new [] { item });
+		internal static Task RemoveCacheAsync(TopicInfo item) => RemoveCacheAsync(item == null ? null : new [] { item });
 		async internal static Task RemoveCacheAsync(IEnumerable<TopicInfo> items) {
 			if (itemCacheTimeout <= 0 || items == null || items.Any() == false) return;
 			var keys = new string[items.Count() * 1];
@@ -117,79 +165,46 @@ namespace cd.BLL {
 
 		public static Task<List<TopicInfo>> GetItemsAsync() => Select.ToListAsync();
 		#endregion
-	}
-	public partial class TopicSelectBuild : SelectBuild<TopicInfo, TopicSelectBuild> {
-		public TopicSelectBuild WhereId(params uint[] Id) {
-			return this.Where1Or("a.`id` = {0}", Id);
+
+		public partial class SelectBuild : SelectBuild<TopicInfo, SelectBuild> {
+			public SelectBuild WhereId(params uint[] Id) => this.Where1Or("a.`id` = {0}", Id);
+			public SelectBuild WhereCarddataLike(string pattern, bool isNotLike = false) => this.Where($@"a.`carddata` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereCardtype_IN(params TopicCARDTYPE?[] Cardtypes) => this.Where1Or("a.`cardtype` = {0}", Cardtypes);
+			/// <summary>
+			/// 卡片类型，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereCardtype(TopicCARDTYPE Cardtype1) => this.WhereCardtype_IN(Cardtype1);
+			#region WhereCardtype
+			public SelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2) => this.WhereCardtype_IN(Cardtype1, Cardtype2);
+			public SelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3) => this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3);
+			public SelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3, TopicCARDTYPE Cardtype4) => this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3, Cardtype4);
+			public SelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3, TopicCARDTYPE Cardtype4, TopicCARDTYPE Cardtype5) => this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3, Cardtype4, Cardtype5);
+			#endregion
+			/// <summary>
+			/// 点击次数，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereClicks(params ulong?[] Clicks) => this.Where1Or("a.`clicks` = {0}", Clicks);
+			public SelectBuild WhereContentLike(string pattern, bool isNotLike = false) => this.Where($@"a.`content` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereCreate_timeRange(DateTime? begin) => base.Where("a.`create_time` >= {0}", begin);
+			public SelectBuild WhereCreate_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereCreate_timeRange(begin) : base.Where("a.`create_time` between {0} and {1}", begin, end);
+			public SelectBuild WhereOrder_timeRange(DateTime? begin) => base.Where("a.`order_time` >= {0}", begin);
+			public SelectBuild WhereOrder_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereOrder_timeRange(begin) : base.Where("a.`order_time` between {0} and {1}", begin, end);
+			/// <summary>
+			/// 测试添加的字段
+			/// 
+			/// 换行
+			/// 
+			/// sdgsdg，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereTest_addfiled(params byte?[] Test_addfiled) => this.Where1Or("a.`test_addfiled` = {0}", Test_addfiled);
+			/// <summary>
+			/// 标题，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereTitle(params string[] Title) => this.Where1Or("a.`title` = {0}", Title);
+			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereUpdate_timeRange(DateTime? begin) => base.Where("a.`update_time` >= {0}", begin);
+			public SelectBuild WhereUpdate_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereUpdate_timeRange(begin) : base.Where("a.`update_time` between {0} and {1}", begin, end);
+			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
-		public TopicSelectBuild WhereCarddata(params string[] Carddata) {
-			return this.Where1Or("a.`carddata` = {0}", Carddata);
-		}
-		public TopicSelectBuild WhereCarddataLike(params string[] Carddata) {
-			if (Carddata == null || Carddata.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`carddata` LIKE {0}", Carddata.Select(a => "%" + a + "%").ToArray());
-		}
-		public TopicSelectBuild WhereCardtype_IN(params TopicCARDTYPE?[] Cardtypes) {
-			return this.Where1Or("a.`cardtype` = {0}", Cardtypes);
-		}
-		public TopicSelectBuild WhereCardtype(TopicCARDTYPE Cardtype1) {
-			return this.WhereCardtype_IN(Cardtype1);
-		}
-		#region WhereCardtype
-		public TopicSelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2) {
-			return this.WhereCardtype_IN(Cardtype1, Cardtype2);
-		}
-		public TopicSelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3) {
-			return this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3);
-		}
-		public TopicSelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3, TopicCARDTYPE Cardtype4) {
-			return this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3, Cardtype4);
-		}
-		public TopicSelectBuild WhereCardtype(TopicCARDTYPE Cardtype1, TopicCARDTYPE Cardtype2, TopicCARDTYPE Cardtype3, TopicCARDTYPE Cardtype4, TopicCARDTYPE Cardtype5) {
-			return this.WhereCardtype_IN(Cardtype1, Cardtype2, Cardtype3, Cardtype4, Cardtype5);
-		}
-		#endregion
-		public TopicSelectBuild WhereClicks(params ulong?[] Clicks) {
-			return this.Where1Or("a.`clicks` = {0}", Clicks);
-		}
-		public TopicSelectBuild WhereContent(params string[] Content) {
-			return this.Where1Or("a.`content` = {0}", Content);
-		}
-		public TopicSelectBuild WhereContentLike(params string[] Content) {
-			if (Content == null || Content.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`content` LIKE {0}", Content.Select(a => "%" + a + "%").ToArray());
-		}
-		public TopicSelectBuild WhereCreate_timeRange(DateTime? begin) {
-			return base.Where("a.`create_time` >= {0}", begin);
-		}
-		public TopicSelectBuild WhereCreate_timeRange(DateTime? begin, DateTime? end) {
-			if (end == null) return WhereCreate_timeRange(begin);
-			return base.Where("a.`create_time` between {0} and {1}", begin, end);
-		}
-		public TopicSelectBuild WhereOrder_timeRange(DateTime? begin) {
-			return base.Where("a.`order_time` >= {0}", begin);
-		}
-		public TopicSelectBuild WhereOrder_timeRange(DateTime? begin, DateTime? end) {
-			if (end == null) return WhereOrder_timeRange(begin);
-			return base.Where("a.`order_time` between {0} and {1}", begin, end);
-		}
-		public TopicSelectBuild WhereTest_addfiled(params byte?[] Test_addfiled) {
-			return this.Where1Or("a.`test_addfiled` = {0}", Test_addfiled);
-		}
-		public TopicSelectBuild WhereTitle(params string[] Title) {
-			return this.Where1Or("a.`title` = {0}", Title);
-		}
-		public TopicSelectBuild WhereTitleLike(params string[] Title) {
-			if (Title == null || Title.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`title` LIKE {0}", Title.Select(a => "%" + a + "%").ToArray());
-		}
-		public TopicSelectBuild WhereUpdate_timeRange(DateTime? begin) {
-			return base.Where("a.`update_time` >= {0}", begin);
-		}
-		public TopicSelectBuild WhereUpdate_timeRange(DateTime? begin, DateTime? end) {
-			if (end == null) return WhereUpdate_timeRange(begin);
-			return base.Where("a.`update_time` between {0} and {1}", begin, end);
-		}
-		public TopicSelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 	}
 }

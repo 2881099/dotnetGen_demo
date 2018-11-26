@@ -29,7 +29,26 @@ namespace cd.BLL {
 			return dal.DeleteByTopic_id(Topic_id);
 		}
 
-		public static int Update(PostInfo item) => dal.Update(item).ExecuteNonQuery();
+		#region enum _
+		public enum _ {
+			Id = 1, 
+			/// <summary>
+			/// 所属主题
+			/// </summary>
+			Topic_id, 
+			/// <summary>
+			/// 回复内容
+			/// </summary>
+			Content, 
+			/// <summary>
+			/// 创建时间
+			/// </summary>
+			Create_time
+		}
+		#endregion
+
+		public static int Update(PostInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => Update(item, new[] { ignore1, ignore2, ignore3 });
+		public static int Update(PostInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQuery();
 		public static cd.DAL.Post.SqlUpdateBuild UpdateDiy(int Id) => new cd.DAL.Post.SqlUpdateBuild(new List<PostInfo> { new PostInfo { Id = Id } });
 		public static cd.DAL.Post.SqlUpdateBuild UpdateDiy(List<PostInfo> dataSource) => new cd.DAL.Post.SqlUpdateBuild(dataSource);
 		/// <summary>
@@ -64,11 +83,11 @@ namespace cd.BLL {
 		public static PostInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Post_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : PostInfo.Parse(str));
 
 		public static List<PostInfo> GetItems() => Select.ToList();
-		public static PostSelectBuild Select => new PostSelectBuild(dal);
-		public static PostSelectBuild SelectAs(string alias = "a") => Select.As(alias);
+		public static SelectBuild Select => new SelectBuild(dal);
+		public static SelectBuild SelectAs(string alias = "a") => Select.As(alias);
 		public static List<PostInfo> GetItemsByTopic_id(params uint?[] Topic_id) => Select.WhereTopic_id(Topic_id).ToList();
 		public static List<PostInfo> GetItemsByTopic_id(uint?[] Topic_id, int limit) => Select.WhereTopic_id(Topic_id).Limit(limit).ToList();
-		public static PostSelectBuild SelectByTopic_id(params uint?[] Topic_id) => Select.WhereTopic_id(Topic_id);
+		public static SelectBuild SelectByTopic_id(params uint?[] Topic_id) => Select.WhereTopic_id(Topic_id);
 
 		#region async
 		public static Task<int> DeleteByTopic_idAsync(uint? Topic_id) {
@@ -80,7 +99,8 @@ namespace cd.BLL {
 			return affrows;
 		}
 		async public static Task<PostInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Post_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : PostInfo.Parse(str));
-		async public static Task<int> UpdateAsync(PostInfo item) => await dal.Update(item).ExecuteNonQueryAsync();
+		public static Task<int> UpdateAsync(PostInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
+		public static Task<int> UpdateAsync(PostInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
 		public static Task<PostInfo> InsertAsync(uint? Topic_id, string Content) {
 			return InsertAsync(new PostInfo {
@@ -93,7 +113,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(item);
 			return item;
 		}
-		async internal static Task RemoveCacheAsync(PostInfo item) => await RemoveCacheAsync(item == null ? null : new [] { item });
+		internal static Task RemoveCacheAsync(PostInfo item) => RemoveCacheAsync(item == null ? null : new [] { item });
 		async internal static Task RemoveCacheAsync(IEnumerable<PostInfo> items) {
 			if (itemCacheTimeout <= 0 || items == null || items.Any() == false) return;
 			var keys = new string[items.Count() * 1];
@@ -108,32 +128,15 @@ namespace cd.BLL {
 		public static Task<List<PostInfo>> GetItemsByTopic_idAsync(params uint?[] Topic_id) => Select.WhereTopic_id(Topic_id).ToListAsync();
 		public static Task<List<PostInfo>> GetItemsByTopic_idAsync(uint?[] Topic_id, int limit) => Select.WhereTopic_id(Topic_id).Limit(limit).ToListAsync();
 		#endregion
-	}
-	public partial class PostSelectBuild : SelectBuild<PostInfo, PostSelectBuild> {
-		public PostSelectBuild WhereTopic_id(params uint?[] Topic_id) {
-			return this.Where1Or("a.`topic_id` = {0}", Topic_id);
+
+		public partial class SelectBuild : SelectBuild<PostInfo, SelectBuild> {
+			public SelectBuild WhereTopic_id(params uint?[] Topic_id) => this.Where1Or("a.`topic_id` = {0}", Topic_id);
+			public SelectBuild WhereTopic_id(Topic.SelectBuild select, bool isNotIn = false) => this.Where($"a.`topic_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
+			public SelectBuild WhereId(params int[] Id) => this.Where1Or("a.`id` = {0}", Id);
+			public SelectBuild WhereContentLike(string pattern, bool isNotLike = false) => this.Where($@"a.`content` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereCreate_timeRange(DateTime? begin) => base.Where("a.`create_time` >= {0}", begin);
+			public SelectBuild WhereCreate_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereCreate_timeRange(begin) : base.Where("a.`create_time` between {0} and {1}", begin, end);
+			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
-		public PostSelectBuild WhereTopic_id(TopicSelectBuild select, bool isNotIn = false) {
-			var opt = isNotIn ? "NOT IN" : "IN";
-			return this.Where($"a.`topic_id` {opt} ({select.ToString("`id`")})");
-		}
-		public PostSelectBuild WhereId(params int[] Id) {
-			return this.Where1Or("a.`id` = {0}", Id);
-		}
-		public PostSelectBuild WhereContent(params string[] Content) {
-			return this.Where1Or("a.`content` = {0}", Content);
-		}
-		public PostSelectBuild WhereContentLike(params string[] Content) {
-			if (Content == null || Content.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`content` LIKE {0}", Content.Select(a => "%" + a + "%").ToArray());
-		}
-		public PostSelectBuild WhereCreate_timeRange(DateTime? begin) {
-			return base.Where("a.`create_time` >= {0}", begin);
-		}
-		public PostSelectBuild WhereCreate_timeRange(DateTime? begin, DateTime? end) {
-			if (end == null) return WhereCreate_timeRange(begin);
-			return base.Where("a.`create_time` between {0} and {1}", begin, end);
-		}
-		public PostSelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 	}
 }

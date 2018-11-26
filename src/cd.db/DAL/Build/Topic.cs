@@ -83,17 +83,19 @@ namespace cd.DAL {
 				GetParameter("?id", MySqlDbType.UInt32, 10, Id));
 		}
 
-		public SqlUpdateBuild Update(TopicInfo item) {
-			return new SqlUpdateBuild(new List<TopicInfo> { item })
-				.SetCarddata(item.Carddata)
-				.SetCardtype(item.Cardtype)
-				.SetClicks(item.Clicks)
-				.SetContent(item.Content)
-				.SetCreate_time(item.Create_time)
-				.SetOrder_time(item.Order_time)
-				.SetTest_addfiled(item.Test_addfiled)
-				.SetTitle(item.Title)
-				.SetUpdate_time(item.Update_time);
+		public SqlUpdateBuild Update(TopicInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<TopicInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("carddata") == false) sub.SetCarddata(item.Carddata);
+			if (ignore.ContainsKey("cardtype") == false) sub.SetCardtype(item.Cardtype);
+			if (ignore.ContainsKey("clicks") == false) sub.SetClicks(item.Clicks);
+			if (ignore.ContainsKey("content") == false) sub.SetContent(item.Content);
+			if (ignore.ContainsKey("create_time") == false) sub.SetCreate_time(item.Create_time);
+			if (ignore.ContainsKey("order_time") == false) sub.SetOrder_time(item.Order_time);
+			if (ignore.ContainsKey("test_addfiled") == false) sub.SetTest_addfiled(item.Test_addfiled);
+			if (ignore.ContainsKey("title") == false) sub.SetTitle(item.Title);
+			if (ignore.ContainsKey("update_time") == false) sub.SetUpdate_time(item.Update_time);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {

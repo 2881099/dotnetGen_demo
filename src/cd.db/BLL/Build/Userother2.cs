@@ -29,7 +29,16 @@ namespace cd.BLL {
 			return dal.DeleteByUserother_id(Userother_id);
 		}
 
-		public static int Update(Userother2Info item) => dal.Update(item).ExecuteNonQuery();
+		#region enum _
+		public enum _ {
+			Userother_id = 1, 
+			Chinesename, 
+			Xxxx
+		}
+		#endregion
+
+		public static int Update(Userother2Info item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => Update(item, new[] { ignore1, ignore2, ignore3 });
+		public static int Update(Userother2Info item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQuery();
 		public static cd.DAL.Userother2.SqlUpdateBuild UpdateDiy(long Userother_id) => new cd.DAL.Userother2.SqlUpdateBuild(new List<Userother2Info> { new Userother2Info { Userother_id = Userother_id } });
 		public static cd.DAL.Userother2.SqlUpdateBuild UpdateDiy(List<Userother2Info> dataSource) => new cd.DAL.Userother2.SqlUpdateBuild(dataSource);
 		/// <summary>
@@ -74,11 +83,11 @@ namespace cd.BLL {
 		public static Userother2Info GetItem(long Userother_id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Userother2_", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
 
 		public static List<Userother2Info> GetItems() => Select.ToList();
-		public static Userother2SelectBuild Select => new Userother2SelectBuild(dal);
-		public static Userother2SelectBuild SelectAs(string alias = "a") => Select.As(alias);
+		public static SelectBuild Select => new SelectBuild(dal);
+		public static SelectBuild SelectAs(string alias = "a") => Select.As(alias);
 		public static List<Userother2Info> GetItemsByUserother_id(params long?[] Userother_id) => Select.WhereUserother_id(Userother_id).ToList();
 		public static List<Userother2Info> GetItemsByUserother_id(long?[] Userother_id, int limit) => Select.WhereUserother_id(Userother_id).Limit(limit).ToList();
-		public static Userother2SelectBuild SelectByUserother_id(params long?[] Userother_id) => Select.WhereUserother_id(Userother_id);
+		public static SelectBuild SelectByUserother_id(params long?[] Userother_id) => Select.WhereUserother_id(Userother_id);
 
 		#region async
 		public static Task<int> DeleteByUserother_idAsync(long? Userother_id) {
@@ -90,7 +99,8 @@ namespace cd.BLL {
 			return affrows;
 		}
 		async public static Task<Userother2Info> GetItemAsync(long Userother_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Userother2_", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
-		async public static Task<int> UpdateAsync(Userother2Info item) => await dal.Update(item).ExecuteNonQueryAsync();
+		public static Task<int> UpdateAsync(Userother2Info item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
+		public static Task<int> UpdateAsync(Userother2Info item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
 		public static Task<Userother2Info> InsertAsync(long? Userother_id, string Chinesename, string Xxxx) {
 			return InsertAsync(new Userother2Info {
@@ -113,7 +123,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(items);
 			return affrows;
 		}
-		async internal static Task RemoveCacheAsync(Userother2Info item) => await RemoveCacheAsync(item == null ? null : new [] { item });
+		internal static Task RemoveCacheAsync(Userother2Info item) => RemoveCacheAsync(item == null ? null : new [] { item });
 		async internal static Task RemoveCacheAsync(IEnumerable<Userother2Info> items) {
 			if (itemCacheTimeout <= 0 || items == null || items.Any() == false) return;
 			var keys = new string[items.Count() * 1];
@@ -128,29 +138,15 @@ namespace cd.BLL {
 		public static Task<List<Userother2Info>> GetItemsByUserother_idAsync(params long?[] Userother_id) => Select.WhereUserother_id(Userother_id).ToListAsync();
 		public static Task<List<Userother2Info>> GetItemsByUserother_idAsync(long?[] Userother_id, int limit) => Select.WhereUserother_id(Userother_id).Limit(limit).ToListAsync();
 		#endregion
-	}
-	public partial class Userother2SelectBuild : SelectBuild<Userother2Info, Userother2SelectBuild> {
-		public Userother2SelectBuild WhereUserother_id(params long?[] Userother_id) {
-			return this.Where1Or("a.`userother_id` = {0}", Userother_id);
+
+		public partial class SelectBuild : SelectBuild<Userother2Info, SelectBuild> {
+			public SelectBuild WhereUserother_id(params long?[] Userother_id) => this.Where1Or("a.`userother_id` = {0}", Userother_id);
+			public SelectBuild WhereUserother_id(Userother.SelectBuild select, bool isNotIn = false) => this.Where($"a.`userother_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
+			public SelectBuild WhereChinesename(params string[] Chinesename) => this.Where1Or("a.`chinesename` = {0}", Chinesename);
+			public SelectBuild WhereChinesenameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`chinesename` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereXxxx(params string[] Xxxx) => this.Where1Or("a.`xxxx` = {0}", Xxxx);
+			public SelectBuild WhereXxxxLike(string pattern, bool isNotLike = false) => this.Where($@"a.`xxxx` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
-		public Userother2SelectBuild WhereUserother_id(UserotherSelectBuild select, bool isNotIn = false) {
-			var opt = isNotIn ? "NOT IN" : "IN";
-			return this.Where($"a.`userother_id` {opt} ({select.ToString("`id`")})");
-		}
-		public Userother2SelectBuild WhereChinesename(params string[] Chinesename) {
-			return this.Where1Or("a.`chinesename` = {0}", Chinesename);
-		}
-		public Userother2SelectBuild WhereChinesenameLike(params string[] Chinesename) {
-			if (Chinesename == null || Chinesename.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`chinesename` LIKE {0}", Chinesename.Select(a => "%" + a + "%").ToArray());
-		}
-		public Userother2SelectBuild WhereXxxx(params string[] Xxxx) {
-			return this.Where1Or("a.`xxxx` = {0}", Xxxx);
-		}
-		public Userother2SelectBuild WhereXxxxLike(params string[] Xxxx) {
-			if (Xxxx == null || Xxxx.Where(a => !string.IsNullOrEmpty(a)).Any() == false) return this;
-			return this.Where1Or(@"a.`xxxx` LIKE {0}", Xxxx.Select(a => "%" + a + "%").ToArray());
-		}
-		public Userother2SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 	}
 }

@@ -32,7 +32,21 @@ namespace cd.BLL {
 			return dal.DeleteByTag_id(Tag_id);
 		}
 
-		public static int Update(Song_tagInfo item) => dal.Update(item).ExecuteNonQuery();
+		#region enum _
+		public enum _ {
+			/// <summary>
+			/// 歌曲
+			/// </summary>
+			Song_id = 1, 
+			/// <summary>
+			/// 标签
+			/// </summary>
+			Tag_id
+		}
+		#endregion
+
+		public static int Update(Song_tagInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => Update(item, new[] { ignore1, ignore2, ignore3 });
+		public static int Update(Song_tagInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQuery();
 		public static cd.DAL.Song_tag.SqlUpdateBuild UpdateDiy(int Song_id, int Tag_id) => new cd.DAL.Song_tag.SqlUpdateBuild(new List<Song_tagInfo> { new Song_tagInfo { Song_id = Song_id, Tag_id = Tag_id } });
 		public static cd.DAL.Song_tag.SqlUpdateBuild UpdateDiy(List<Song_tagInfo> dataSource) => new cd.DAL.Song_tag.SqlUpdateBuild(dataSource);
 		/// <summary>
@@ -76,14 +90,14 @@ namespace cd.BLL {
 		public static Song_tagInfo GetItem(int Song_id, int Tag_id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Song_tag_", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
 
 		public static List<Song_tagInfo> GetItems() => Select.ToList();
-		public static Song_tagSelectBuild Select => new Song_tagSelectBuild(dal);
-		public static Song_tagSelectBuild SelectAs(string alias = "a") => Select.As(alias);
+		public static SelectBuild Select => new SelectBuild(dal);
+		public static SelectBuild SelectAs(string alias = "a") => Select.As(alias);
 		public static List<Song_tagInfo> GetItemsBySong_id(params int?[] Song_id) => Select.WhereSong_id(Song_id).ToList();
 		public static List<Song_tagInfo> GetItemsBySong_id(int?[] Song_id, int limit) => Select.WhereSong_id(Song_id).Limit(limit).ToList();
-		public static Song_tagSelectBuild SelectBySong_id(params int?[] Song_id) => Select.WhereSong_id(Song_id);
+		public static SelectBuild SelectBySong_id(params int?[] Song_id) => Select.WhereSong_id(Song_id);
 		public static List<Song_tagInfo> GetItemsByTag_id(params int?[] Tag_id) => Select.WhereTag_id(Tag_id).ToList();
 		public static List<Song_tagInfo> GetItemsByTag_id(int?[] Tag_id, int limit) => Select.WhereTag_id(Tag_id).Limit(limit).ToList();
-		public static Song_tagSelectBuild SelectByTag_id(params int?[] Tag_id) => Select.WhereTag_id(Tag_id);
+		public static SelectBuild SelectByTag_id(params int?[] Tag_id) => Select.WhereTag_id(Tag_id);
 
 		#region async
 		public static Task<int> DeleteByTag_idAsync(int? Tag_id) {
@@ -98,7 +112,8 @@ namespace cd.BLL {
 			return affrows;
 		}
 		async public static Task<Song_tagInfo> GetItemAsync(int Song_id, int Tag_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Song_tag_", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
-		async public static Task<int> UpdateAsync(Song_tagInfo item) => await dal.Update(item).ExecuteNonQueryAsync();
+		public static Task<int> UpdateAsync(Song_tagInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
+		public static Task<int> UpdateAsync(Song_tagInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
 		public static Task<Song_tagInfo> InsertAsync(int? Song_id, int? Tag_id) {
 			return InsertAsync(new Song_tagInfo {
@@ -120,7 +135,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(items);
 			return affrows;
 		}
-		async internal static Task RemoveCacheAsync(Song_tagInfo item) => await RemoveCacheAsync(item == null ? null : new [] { item });
+		internal static Task RemoveCacheAsync(Song_tagInfo item) => RemoveCacheAsync(item == null ? null : new [] { item });
 		async internal static Task RemoveCacheAsync(IEnumerable<Song_tagInfo> items) {
 			if (itemCacheTimeout <= 0 || items == null || items.Any() == false) return;
 			var keys = new string[items.Count() * 1];
@@ -137,22 +152,13 @@ namespace cd.BLL {
 		public static Task<List<Song_tagInfo>> GetItemsByTag_idAsync(params int?[] Tag_id) => Select.WhereTag_id(Tag_id).ToListAsync();
 		public static Task<List<Song_tagInfo>> GetItemsByTag_idAsync(int?[] Tag_id, int limit) => Select.WhereTag_id(Tag_id).Limit(limit).ToListAsync();
 		#endregion
-	}
-	public partial class Song_tagSelectBuild : SelectBuild<Song_tagInfo, Song_tagSelectBuild> {
-		public Song_tagSelectBuild WhereSong_id(params int?[] Song_id) {
-			return this.Where1Or("a.`song_id` = {0}", Song_id);
+
+		public partial class SelectBuild : SelectBuild<Song_tagInfo, SelectBuild> {
+			public SelectBuild WhereSong_id(params int?[] Song_id) => this.Where1Or("a.`song_id` = {0}", Song_id);
+			public SelectBuild WhereSong_id(Song.SelectBuild select, bool isNotIn = false) => this.Where($"a.`song_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
+			public SelectBuild WhereTag_id(params int?[] Tag_id) => this.Where1Or("a.`tag_id` = {0}", Tag_id);
+			public SelectBuild WhereTag_id(Tag.SelectBuild select, bool isNotIn = false) => this.Where($"a.`tag_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
+			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
-		public Song_tagSelectBuild WhereSong_id(SongSelectBuild select, bool isNotIn = false) {
-			var opt = isNotIn ? "NOT IN" : "IN";
-			return this.Where($"a.`song_id` {opt} ({select.ToString("`id`")})");
-		}
-		public Song_tagSelectBuild WhereTag_id(params int?[] Tag_id) {
-			return this.Where1Or("a.`tag_id` = {0}", Tag_id);
-		}
-		public Song_tagSelectBuild WhereTag_id(TagSelectBuild select, bool isNotIn = false) {
-			var opt = isNotIn ? "NOT IN" : "IN";
-			return this.Where($"a.`tag_id` {opt} ({select.ToString("`id`")})");
-		}
-		public Song_tagSelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 	}
 }

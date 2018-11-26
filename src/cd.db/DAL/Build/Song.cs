@@ -68,12 +68,14 @@ namespace cd.DAL {
 				GetParameter("?id", MySqlDbType.Int32, 11, Id));
 		}
 
-		public SqlUpdateBuild Update(SongInfo item) {
-			return new SqlUpdateBuild(new List<SongInfo> { item })
-				.SetCreate_time(item.Create_time)
-				.SetIs_deleted(item.Is_deleted)
-				.SetTitle(item.Title)
-				.SetUrl(item.Url);
+		public SqlUpdateBuild Update(SongInfo item, string[] ignoreFields) {
+			var sub = new SqlUpdateBuild(new List<SongInfo> { item });
+			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("create_time") == false) sub.SetCreate_time(item.Create_time);
+			if (ignore.ContainsKey("is_deleted") == false) sub.SetIs_deleted(item.Is_deleted);
+			if (ignore.ContainsKey("title") == false) sub.SetTitle(item.Title);
+			if (ignore.ContainsKey("url") == false) sub.SetUrl(item.Url);
+			return sub;
 		}
 		#region class SqlUpdateBuild
 		public partial class SqlUpdateBuild {
