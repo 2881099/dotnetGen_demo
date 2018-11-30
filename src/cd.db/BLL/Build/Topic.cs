@@ -25,10 +25,17 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) RemoveCache(new TopicInfo { Id = Id });
 			return affrows;
 		}
+		public static int DeleteByTopic_type_id(int? Topic_type_id) {
+			return dal.DeleteByTopic_type_id(Topic_type_id);
+		}
 
 		#region enum _
 		public enum _ {
 			Id = 1, 
+			/// <summary>
+			/// 类型id
+			/// </summary>
+			Topic_type_id, 
 			/// <summary>
 			/// 卡片渲染数据
 			/// </summary>
@@ -85,8 +92,9 @@ namespace cd.BLL {
 		/// 适用字段较少的表；避规后续改表风险，字段数较大请改用 Topic.Insert(TopicInfo item)
 		/// </summary>
 		[Obsolete]
-		public static TopicInfo Insert(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
+		public static TopicInfo Insert(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
 			return Insert(new TopicInfo {
+				Topic_type_id = Topic_type_id, 
 				Carddata = Carddata, 
 				Cardtype = Cardtype, 
 				Clicks = Clicks, 
@@ -120,8 +128,14 @@ namespace cd.BLL {
 		public static List<TopicInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
 		public static SelectBuild SelectAs(string alias = "a") => Select.As(alias);
+		public static List<TopicInfo> GetItemsByTopic_type_id(params int?[] Topic_type_id) => Select.WhereTopic_type_id(Topic_type_id).ToList();
+		public static List<TopicInfo> GetItemsByTopic_type_id(int?[] Topic_type_id, int limit) => Select.WhereTopic_type_id(Topic_type_id).Limit(limit).ToList();
+		public static SelectBuild SelectByTopic_type_id(params int?[] Topic_type_id) => Select.WhereTopic_type_id(Topic_type_id);
 
 		#region async
+		public static Task<int> DeleteByTopic_type_idAsync(int? Topic_type_id) {
+			return dal.DeleteByTopic_type_idAsync(Topic_type_id);
+		}
 		async public static Task<int> DeleteAsync(uint Id) {
 			var affrows = await dal.DeleteAsync(Id);
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new TopicInfo { Id = Id });
@@ -135,8 +149,9 @@ namespace cd.BLL {
 		/// 适用字段较少的表；避规后续改表风险，字段数较大请改用 Topic.Insert(TopicInfo item)
 		/// </summary>
 		[Obsolete]
-		public static Task<TopicInfo> InsertAsync(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
+		public static Task<TopicInfo> InsertAsync(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
 			return InsertAsync(new TopicInfo {
+				Topic_type_id = Topic_type_id, 
 				Carddata = Carddata, 
 				Cardtype = Cardtype, 
 				Clicks = Clicks, 
@@ -164,9 +179,13 @@ namespace cd.BLL {
 		}
 
 		public static Task<List<TopicInfo>> GetItemsAsync() => Select.ToListAsync();
+		public static Task<List<TopicInfo>> GetItemsByTopic_type_idAsync(params int?[] Topic_type_id) => Select.WhereTopic_type_id(Topic_type_id).ToListAsync();
+		public static Task<List<TopicInfo>> GetItemsByTopic_type_idAsync(int?[] Topic_type_id, int limit) => Select.WhereTopic_type_id(Topic_type_id).Limit(limit).ToListAsync();
 		#endregion
 
 		public partial class SelectBuild : SelectBuild<TopicInfo, SelectBuild> {
+			public SelectBuild WhereTopic_type_id(params int?[] Topic_type_id) => this.Where1Or("a.`topic_type_id` = {0}", Topic_type_id);
+			public SelectBuild WhereTopic_type_id(Topic_type.SelectBuild select, bool isNotIn = false) => this.Where($"a.`topic_type_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
 			public SelectBuild WhereId(params uint[] Id) => this.Where1Or("a.`id` = {0}", Id);
 			public SelectBuild WhereCarddataLike(string pattern, bool isNotLike = false) => this.Where($@"a.`carddata` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
 			public SelectBuild WhereCardtype_IN(params TopicCARDTYPE?[] Cardtypes) => this.Where1Or("a.`cardtype` = {0}", Cardtypes);

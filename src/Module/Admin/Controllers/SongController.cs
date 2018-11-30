@@ -19,7 +19,7 @@ namespace cd.Module.Admin.Controllers {
 		public SongController(ILogger<SongController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromServices]IConfiguration cfg, [FromQuery] string key, [FromQuery] int[] Tag_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int[] Tag_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
 			var select = Song.Select
 				.Where(!string.IsNullOrEmpty(key), "a.title like {0} or a.url like {0}", string.Concat("%", key, "%"));
 			if (Tag_id.Length > 0) select.WhereTag_id(Tag_id);

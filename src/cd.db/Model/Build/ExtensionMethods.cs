@@ -8,12 +8,33 @@ using cd.Model;
 
 public static partial class cdExtensionMethods {
 
+	public static string ToJson(this DirInfo item) => string.Concat(item);
+	public static string ToJson(this DirInfo[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<DirInfo> items) => GetJson(items);
+	public static IDictionary[] ToBson(this DirInfo[] items, Func<DirInfo, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<DirInfo> items, Func<DirInfo, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Dir.SqlUpdateBuild UpdateDiy(this List<DirInfo> items) => cd.BLL.Dir.UpdateDiy(items);
+
 	public static string ToJson(this PostInfo item) => string.Concat(item);
 	public static string ToJson(this PostInfo[] items) => GetJson(items);
 	public static string ToJson(this IEnumerable<PostInfo> items) => GetJson(items);
 	public static IDictionary[] ToBson(this PostInfo[] items, Func<PostInfo, object> func = null) => GetBson(items, func);
 	public static IDictionary[] ToBson(this IEnumerable<PostInfo> items, Func<PostInfo, object> func = null) => GetBson(items, func);
 	public static cd.DAL.Post.SqlUpdateBuild UpdateDiy(this List<PostInfo> items) => cd.BLL.Post.UpdateDiy(items);
+
+	public static string ToJson(this RoleInfo item) => string.Concat(item);
+	public static string ToJson(this RoleInfo[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<RoleInfo> items) => GetJson(items);
+	public static IDictionary[] ToBson(this RoleInfo[] items, Func<RoleInfo, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<RoleInfo> items, Func<RoleInfo, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Role.SqlUpdateBuild UpdateDiy(this List<RoleInfo> items) => cd.BLL.Role.UpdateDiy(items);
+
+	public static string ToJson(this Role_dirInfo item) => string.Concat(item);
+	public static string ToJson(this Role_dirInfo[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<Role_dirInfo> items) => GetJson(items);
+	public static IDictionary[] ToBson(this Role_dirInfo[] items, Func<Role_dirInfo, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<Role_dirInfo> items, Func<Role_dirInfo, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Role_dir.SqlUpdateBuild UpdateDiy(this List<Role_dirInfo> items) => cd.BLL.Role_dir.UpdateDiy(items);
 
 	public static string ToJson(this SongInfo item) => string.Concat(item);
 	public static string ToJson(this SongInfo[] items) => GetJson(items);
@@ -42,6 +63,13 @@ public static partial class cdExtensionMethods {
 	public static IDictionary[] ToBson(this TopicInfo[] items, Func<TopicInfo, object> func = null) => GetBson(items, func);
 	public static IDictionary[] ToBson(this IEnumerable<TopicInfo> items, Func<TopicInfo, object> func = null) => GetBson(items, func);
 	public static cd.DAL.Topic.SqlUpdateBuild UpdateDiy(this List<TopicInfo> items) => cd.BLL.Topic.UpdateDiy(items);
+
+	public static string ToJson(this Topic_typeInfo item) => string.Concat(item);
+	public static string ToJson(this Topic_typeInfo[] items) => GetJson(items);
+	public static string ToJson(this IEnumerable<Topic_typeInfo> items) => GetJson(items);
+	public static IDictionary[] ToBson(this Topic_typeInfo[] items, Func<Topic_typeInfo, object> func = null) => GetBson(items, func);
+	public static IDictionary[] ToBson(this IEnumerable<Topic_typeInfo> items, Func<Topic_typeInfo, object> func = null) => GetBson(items, func);
+	public static cd.DAL.Topic_type.SqlUpdateBuild UpdateDiy(this List<Topic_typeInfo> items) => cd.BLL.Topic_type.UpdateDiy(items);
 
 	public static string ToJson(this UserotherInfo item) => string.Concat(item);
 	public static string ToJson(this UserotherInfo[] items) => GetJson(items);

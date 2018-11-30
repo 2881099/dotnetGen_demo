@@ -15,15 +15,13 @@ using cd.Model;
 
 namespace cd.Module.Admin.Controllers {
 	[Route("[controller]")]
-	public class TagController : BaseController {
-		public TagController(ILogger<TagController> logger) : base(logger) { }
+	public class Topic_typeController : BaseController {
+		public Topic_typeController(ILogger<Topic_typeController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int?[] Parent_id, [FromQuery] int[] Song_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
-			var select = Tag.Select
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+			var select = Topic_type.Select
 				.Where(!string.IsNullOrEmpty(key), "a.name like {0}", string.Concat("%", key, "%"));
-			if (Parent_id.Length > 0) select.WhereParent_id(Parent_id);
-			if (Song_id.Length > 0) select.WhereSong_id(Song_id);
 			var items = await select.Count(out var count).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
@@ -36,7 +34,7 @@ namespace cd.Module.Admin.Controllers {
 		}
 		[HttpGet(@"edit")]
 		async public Task<ActionResult> Edit([FromQuery] int Id) {
-			TagInfo item = await Tag.GetItemAsync(Id);
+			Topic_typeInfo item = await Topic_type.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
 			ViewBag.item = item;
 			return View();
@@ -45,36 +43,19 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
-			TagInfo item = new TagInfo();
-			item.Parent_id = Parent_id;
+		async public Task<APIReturn> _Add([FromForm] string Name) {
+			Topic_typeInfo item = new Topic_typeInfo();
 			item.Name = Name;
-			item = await Tag.InsertAsync(item);
-			//关联 Song
-			foreach (int mn_Song_in in mn_Song)
-				item.FlagSong(mn_Song_in);
+			item = await Topic_type.InsertAsync(item);
 			return APIReturn.成功.SetData("item", item.ToBson());
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
-			TagInfo item = await Tag.GetItemAsync(Id);
+		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] string Name) {
+			Topic_typeInfo item = await Topic_type.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
-			item.Parent_id = Parent_id;
 			item.Name = Name;
-			int affrows = await Tag.UpdateAsync(item);
-			//关联 Song
-			if (mn_Song.Length == 0) {
-				item.UnflagSongALL();
-			} else {
-				List<int> mn_Song_list = mn_Song.ToList();
-				foreach (var Obj_song in item.Obj_songs) {
-					int idx = mn_Song_list.FindIndex(a => a == Obj_song.Id);
-					if (idx == -1) item.UnflagSong(Obj_song.Id);
-					else mn_Song_list.RemoveAt(idx);
-				}
-				mn_Song_list.ForEach(a => item.FlagSong(a));
-			}
+			int affrows = await Topic_type.UpdateAsync(item);
 			if (affrows > 0) return APIReturn.成功.SetMessage($"更新成功，影响行数：{affrows}");
 			return APIReturn.失败;
 		}
@@ -84,7 +65,7 @@ namespace cd.Module.Admin.Controllers {
 		async public Task<APIReturn> _Del([FromForm] int[] id) {
 			int affrows = 0;
 			foreach (int id2 in id)
-				affrows += await Tag.DeleteAsync(id2);
+				affrows += await Topic_type.DeleteAsync(id2);
 			if (affrows > 0) return APIReturn.成功.SetMessage($"删除成功，影响行数：{affrows}");
 			return APIReturn.失败;
 		}

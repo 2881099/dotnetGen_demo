@@ -19,7 +19,7 @@ namespace cd.Module.Admin.Controllers {
 		public UserotherController(ILogger<UserotherController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromServices]IConfiguration cfg, [FromQuery] string key, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
 			var select = Userother.Select
 				.Where(!string.IsNullOrEmpty(key), "a.userid like {0} or a.chinesename like {0} or a.doctype like {0} or a.englishname like {0} or a.idnumber like {0} or a.images like {0}", string.Concat("%", key, "%"));
 			var items = await select.Count(out var count).Page(page, limit).ToListAsync();

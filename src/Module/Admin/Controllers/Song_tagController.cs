@@ -19,13 +19,13 @@ namespace cd.Module.Admin.Controllers {
 		public Song_tagController(ILogger<Song_tagController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromServices]IConfiguration cfg, [FromQuery] int?[] Song_id, [FromQuery] int?[] Tag_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+		async public Task<ActionResult> List([FromQuery] int?[] Song_id, [FromQuery] int?[] Tag_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
 			var select = Song_tag.Select;
 			if (Song_id.Length > 0) select.WhereSong_id(Song_id);
 			if (Tag_id.Length > 0) select.WhereTag_id(Tag_id);
 			var items = await select.Count(out var count)
-				.LeftJoin<Song>("b", "b.id = a.song_id")
-				.LeftJoin<Tag>("c", "c.id = a.tag_id").Page(page, limit).ToListAsync();
+				.LeftJoin(a => a.Obj_song.Id == a.Song_id)
+				.LeftJoin(a => a.Obj_tag.Id == a.Tag_id).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
 			return View();

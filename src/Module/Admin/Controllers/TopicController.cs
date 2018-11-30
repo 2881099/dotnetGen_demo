@@ -19,10 +19,12 @@ namespace cd.Module.Admin.Controllers {
 		public TopicController(ILogger<TopicController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromServices]IConfiguration cfg, [FromQuery] string key, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int?[] Topic_type_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
 			var select = Topic.Select
 				.Where(!string.IsNullOrEmpty(key), "a.carddata like {0} or a.content like {0} or a.title like {0}", string.Concat("%", key, "%"));
-			var items = await select.Count(out var count).Page(page, limit).ToListAsync();
+			if (Topic_type_id.Length > 0) select.WhereTopic_type_id(Topic_type_id);
+			var items = await select.Count(out var count)
+				.LeftJoin(a => a.Obj_topic_type.Id == a.Topic_type_id).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
 			return View();
@@ -43,8 +45,9 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] string Carddata, [FromForm] TopicCARDTYPE? Cardtype, [FromForm] ulong? Clicks, [FromForm] string Content, [FromForm] DateTime? Order_time, [FromForm] byte? Test_addfiled, [FromForm] string Title) {
+		async public Task<APIReturn> _Add([FromForm] int? Topic_type_id, [FromForm] string Carddata, [FromForm] TopicCARDTYPE? Cardtype, [FromForm] ulong? Clicks, [FromForm] string Content, [FromForm] DateTime? Order_time, [FromForm] byte? Test_addfiled, [FromForm] string Title) {
 			TopicInfo item = new TopicInfo();
+			item.Topic_type_id = Topic_type_id;
 			item.Carddata = Carddata;
 			item.Cardtype = Cardtype;
 			item.Clicks = Clicks;
@@ -59,9 +62,10 @@ namespace cd.Module.Admin.Controllers {
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] uint Id, [FromForm] string Carddata, [FromForm] TopicCARDTYPE? Cardtype, [FromForm] ulong? Clicks, [FromForm] string Content, [FromForm] DateTime? Order_time, [FromForm] byte? Test_addfiled, [FromForm] string Title) {
+		async public Task<APIReturn> _Edit([FromQuery] uint Id, [FromForm] int? Topic_type_id, [FromForm] string Carddata, [FromForm] TopicCARDTYPE? Cardtype, [FromForm] ulong? Clicks, [FromForm] string Content, [FromForm] DateTime? Order_time, [FromForm] byte? Test_addfiled, [FromForm] string Title) {
 			TopicInfo item = await Topic.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
+			item.Topic_type_id = Topic_type_id;
 			item.Carddata = Carddata;
 			item.Cardtype = Cardtype;
 			item.Clicks = Clicks;

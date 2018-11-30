@@ -15,12 +15,12 @@ namespace cd.DAL {
 		public string Sort { get { return TSQL.Sort; } }
 		internal class TSQL {
 			internal static readonly string Table = "`topic`";
-			internal static readonly string Field = "a.`id`, a.`carddata`, a.`cardtype`+0, a.`clicks`, a.`content`, a.`create_time`, a.`order_time`, a.`test_addfiled`, a.`title`, a.`update_time`";
+			internal static readonly string Field = "a.`id`, a.`topic_type_id`, a.`carddata`, a.`cardtype`+0, a.`clicks`, a.`content`, a.`create_time`, a.`order_time`, a.`test_addfiled`, a.`title`, a.`update_time`";
 			internal static readonly string Sort = "a.`id`";
 			internal static readonly string Returning = "; SELECT LAST_INSERT_ID();";
 			internal static readonly string Delete = "DELETE FROM `topic` WHERE ";
-			internal static readonly string InsertField = @"`carddata`, `cardtype`, `clicks`, `content`, `create_time`, `order_time`, `test_addfiled`, `title`, `update_time`";
-			internal static readonly string InsertValues = @"?carddata, ?cardtype, ?clicks, ?content, ?create_time, ?order_time, ?test_addfiled, ?title, ?update_time";
+			internal static readonly string InsertField = @"`topic_type_id`, `carddata`, `cardtype`, `clicks`, `content`, `create_time`, `order_time`, `test_addfiled`, `title`, `update_time`";
+			internal static readonly string InsertValues = @"?topic_type_id, ?carddata, ?cardtype, ?clicks, ?content, ?create_time, ?order_time, ?test_addfiled, ?title, ?update_time";
 			internal static readonly string InsertMultiFormat = @"INSERT INTO `topic`(" + InsertField + ") VALUES{0}";
 			internal static readonly string Insert = string.Format(InsertMultiFormat, $"({InsertValues}){Returning}");
 		}
@@ -36,6 +36,7 @@ namespace cd.DAL {
 		protected static MySqlParameter[] GetParameters(TopicInfo item) {
 			return new MySqlParameter[] {
 				GetParameter("?id", MySqlDbType.UInt32, 10, item.Id), 
+				GetParameter("?topic_type_id", MySqlDbType.Int32, 11, item.Topic_type_id), 
 				GetParameter("?carddata", MySqlDbType.Text, -1, item.Carddata), 
 				GetParameter("?cardtype", MySqlDbType.Enum, -1, item.Cardtype?.ToInt64()), 
 				GetParameter("?clicks", MySqlDbType.UInt64, 20, item.Clicks), 
@@ -52,7 +53,8 @@ namespace cd.DAL {
 		}
 		public object GetItem(IDataReader dr, ref int dataIndex) {
 			TopicInfo item = new TopicInfo();
-			if (!dr.IsDBNull(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 9; return null; }
+			if (!dr.IsDBNull(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 10; return null; }
+			if (!dr.IsDBNull(++dataIndex)) item.Topic_type_id = (int?)dr.GetInt32(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Carddata = dr.GetString(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Cardtype = (TopicCARDTYPE?)dr.GetInt64(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Clicks = (ulong?)dr.GetInt64(dataIndex);
@@ -66,6 +68,7 @@ namespace cd.DAL {
 		}
 		private void CopyItemAllField(TopicInfo item, TopicInfo newitem) {
 			item.Id = newitem.Id;
+			item.Topic_type_id = newitem.Topic_type_id;
 			item.Carddata = newitem.Carddata;
 			item.Cardtype = newitem.Cardtype;
 			item.Clicks = newitem.Clicks;
@@ -82,10 +85,15 @@ namespace cd.DAL {
 			return SqlHelper.ExecuteNonQuery(string.Concat(TSQL.Delete, "`id` = ?id"), 
 				GetParameter("?id", MySqlDbType.UInt32, 10, Id));
 		}
+		public int DeleteByTopic_type_id(int? Topic_type_id) {
+			return SqlHelper.ExecuteNonQuery(string.Concat(TSQL.Delete, "`topic_type_id` = ?topic_type_id"), 
+				GetParameter("?topic_type_id", MySqlDbType.Int32, 11, Topic_type_id));
+		}
 
 		public SqlUpdateBuild Update(TopicInfo item, string[] ignoreFields) {
 			var sub = new SqlUpdateBuild(new List<TopicInfo> { item });
 			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
+			if (ignore.ContainsKey("topic_type_id") == false) sub.SetTopic_type_id(item.Topic_type_id);
 			if (ignore.ContainsKey("carddata") == false) sub.SetCarddata(item.Carddata);
 			if (ignore.ContainsKey("cardtype") == false) sub.SetCardtype(item.Cardtype);
 			if (ignore.ContainsKey("clicks") == false) sub.SetClicks(item.Clicks);
@@ -147,6 +155,11 @@ namespace cd.DAL {
 				_fields = string.Concat(_fields, ", ", field, " = ", value);
 				if (parms != null && parms.Length > 0) _parameters.AddRange(parms);
 				return this;
+			}
+			public SqlUpdateBuild SetTopic_type_id(int? value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Topic_type_id = value;
+				return this.Set("`topic_type_id`", $"?topic_type_id_{_parameters.Count}", 
+					GetParameter($"?topic_type_id_{_parameters.Count}", MySqlDbType.Int32, 11, value));
 			}
 			public SqlUpdateBuild SetCarddata(string value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Carddata = value;
@@ -218,7 +231,8 @@ namespace cd.DAL {
 		}
 		async public Task<(object result, int dataIndex)> GetItemAsync(MySqlDataReader dr, int dataIndex) {
 			TopicInfo item = new TopicInfo();
-			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 9; return (null, dataIndex); }
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 10; return (null, dataIndex); }
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Topic_type_id = (int?)dr.GetInt32(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Carddata = dr.GetString(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Cardtype = (TopicCARDTYPE?)dr.GetInt64(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Clicks = (ulong?)dr.GetInt64(dataIndex);
@@ -233,6 +247,10 @@ namespace cd.DAL {
 		public Task<int> DeleteAsync(uint Id) {
 			return SqlHelper.ExecuteNonQueryAsync(string.Concat(TSQL.Delete, "`id` = ?id"), 
 				GetParameter("?id", MySqlDbType.UInt32, 10, Id));
+		}
+		public Task<int> DeleteByTopic_type_idAsync(int? Topic_type_id) {
+			return SqlHelper.ExecuteNonQueryAsync(string.Concat(TSQL.Delete, "`topic_type_id` = ?topic_type_id"), 
+				GetParameter("?topic_type_id", MySqlDbType.Int32, 11, Topic_type_id));
 		}
 		async public Task<TopicInfo> InsertAsync(TopicInfo item) {
 			if (uint.TryParse(string.Concat(await SqlHelper.ExecuteScalarAsync(TSQL.Insert, GetParameters(item))), out var loc1)) item.Id = loc1;

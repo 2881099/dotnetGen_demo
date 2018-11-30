@@ -15,16 +15,17 @@ using cd.Model;
 
 namespace cd.Module.Admin.Controllers {
 	[Route("[controller]")]
-	public class PostController : BaseController {
-		public PostController(ILogger<PostController> logger) : base(logger) { }
+	public class Role_dirController : BaseController {
+		public Role_dirController(ILogger<Role_dirController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] uint?[] Topic_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
-			var select = Post.Select
-				.Where(!string.IsNullOrEmpty(key), "a.content like {0}", string.Concat("%", key, "%"));
-			if (Topic_id.Length > 0) select.WhereTopic_id(Topic_id);
+		async public Task<ActionResult> List([FromQuery] uint?[] Dir_id, [FromQuery] uint?[] Role_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+			var select = Role_dir.Select;
+			if (Dir_id.Length > 0) select.WhereDir_id(Dir_id);
+			if (Role_id.Length > 0) select.WhereRole_id(Role_id);
 			var items = await select.Count(out var count)
-				.LeftJoin(a => a.Obj_topic.Id == a.Topic_id).Page(page, limit).ToListAsync();
+				.LeftJoin(a => a.Obj_dir.Id == a.Dir_id)
+				.LeftJoin(a => a.Obj_role.Id == a.Role_id).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
 			return View();
@@ -35,8 +36,8 @@ namespace cd.Module.Admin.Controllers {
 			return View();
 		}
 		[HttpGet(@"edit")]
-		async public Task<ActionResult> Edit([FromQuery] int Id) {
-			PostInfo item = await Post.GetItemAsync(Id);
+		async public Task<ActionResult> Edit([FromQuery] uint Dir_id, [FromQuery] uint Role_id) {
+			Role_dirInfo item = await Role_dir.GetItemAsync(Dir_id, Role_id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
 			ViewBag.item = item;
 			return View();
@@ -45,33 +46,31 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] uint? Topic_id, [FromForm] string Content) {
-			PostInfo item = new PostInfo();
-			item.Topic_id = Topic_id;
-			item.Content = Content;
-			item.Create_time = DateTime.Now;
-			item = await Post.InsertAsync(item);
+		async public Task<APIReturn> _Add([FromForm] uint? Dir_id, [FromForm] uint? Role_id) {
+			Role_dirInfo item = new Role_dirInfo();
+			item.Dir_id = Dir_id;
+			item.Role_id = Role_id;
+			item = await Role_dir.InsertAsync(item);
 			return APIReturn.成功.SetData("item", item.ToBson());
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] uint? Topic_id, [FromForm] string Content) {
-			PostInfo item = await Post.GetItemAsync(Id);
+		async public Task<APIReturn> _Edit([FromQuery] uint Dir_id, [FromQuery] uint Role_id) {
+			Role_dirInfo item = await Role_dir.GetItemAsync(Dir_id, Role_id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
-			item.Topic_id = Topic_id;
-			item.Content = Content;
-			item.Create_time = DateTime.Now;
-			int affrows = await Post.UpdateAsync(item);
+			int affrows = await Role_dir.UpdateAsync(item);
 			if (affrows > 0) return APIReturn.成功.SetMessage($"更新成功，影响行数：{affrows}");
 			return APIReturn.失败;
 		}
 
 		[HttpPost("del")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Del([FromForm] int[] id) {
+		async public Task<APIReturn> _Del([FromForm] string[] id) {
 			int affrows = 0;
-			foreach (int id2 in id)
-				affrows += await Post.DeleteAsync(id2);
+			foreach (string id2 in id) {
+				string[] vs = id2.Split(',');
+				affrows += await Role_dir.DeleteAsync(uint.Parse(vs[0]), uint.Parse(vs[1]));
+			}
 			if (affrows > 0) return APIReturn.成功.SetMessage($"删除成功，影响行数：{affrows}");
 			return APIReturn.失败;
 		}

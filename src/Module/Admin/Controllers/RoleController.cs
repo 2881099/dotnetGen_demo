@@ -15,15 +15,14 @@ using cd.Model;
 
 namespace cd.Module.Admin.Controllers {
 	[Route("[controller]")]
-	public class TagController : BaseController {
-		public TagController(ILogger<TagController> logger) : base(logger) { }
+	public class RoleController : BaseController {
+		public RoleController(ILogger<RoleController> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] int?[] Parent_id, [FromQuery] int[] Song_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
-			var select = Tag.Select
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] uint[] Dir_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+			var select = Role.Select
 				.Where(!string.IsNullOrEmpty(key), "a.name like {0}", string.Concat("%", key, "%"));
-			if (Parent_id.Length > 0) select.WhereParent_id(Parent_id);
-			if (Song_id.Length > 0) select.WhereSong_id(Song_id);
+			if (Dir_id.Length > 0) select.WhereDir_id(Dir_id);
 			var items = await select.Count(out var count).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
@@ -35,8 +34,8 @@ namespace cd.Module.Admin.Controllers {
 			return View();
 		}
 		[HttpGet(@"edit")]
-		async public Task<ActionResult> Edit([FromQuery] int Id) {
-			TagInfo item = await Tag.GetItemAsync(Id);
+		async public Task<ActionResult> Edit([FromQuery] uint Id) {
+			RoleInfo item = await Role.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
 			ViewBag.item = item;
 			return View();
@@ -45,35 +44,35 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
-			TagInfo item = new TagInfo();
-			item.Parent_id = Parent_id;
+		async public Task<APIReturn> _Add([FromForm] string Name, [FromForm] uint[] mn_Dir) {
+			RoleInfo item = new RoleInfo();
+			item.Create_time = DateTime.Now;
 			item.Name = Name;
-			item = await Tag.InsertAsync(item);
-			//关联 Song
-			foreach (int mn_Song_in in mn_Song)
-				item.FlagSong(mn_Song_in);
+			item = await Role.InsertAsync(item);
+			//关联 Dir
+			foreach (uint mn_Dir_in in mn_Dir)
+				item.FlagDir(mn_Dir_in);
 			return APIReturn.成功.SetData("item", item.ToBson());
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
-			TagInfo item = await Tag.GetItemAsync(Id);
+		async public Task<APIReturn> _Edit([FromQuery] uint Id, [FromForm] string Name, [FromForm] uint[] mn_Dir) {
+			RoleInfo item = await Role.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
-			item.Parent_id = Parent_id;
+			item.Create_time = DateTime.Now;
 			item.Name = Name;
-			int affrows = await Tag.UpdateAsync(item);
-			//关联 Song
-			if (mn_Song.Length == 0) {
-				item.UnflagSongALL();
+			int affrows = await Role.UpdateAsync(item);
+			//关联 Dir
+			if (mn_Dir.Length == 0) {
+				item.UnflagDirALL();
 			} else {
-				List<int> mn_Song_list = mn_Song.ToList();
-				foreach (var Obj_song in item.Obj_songs) {
-					int idx = mn_Song_list.FindIndex(a => a == Obj_song.Id);
-					if (idx == -1) item.UnflagSong(Obj_song.Id);
-					else mn_Song_list.RemoveAt(idx);
+				List<uint> mn_Dir_list = mn_Dir.ToList();
+				foreach (var Obj_dir in item.Obj_dirs) {
+					int idx = mn_Dir_list.FindIndex(a => a == Obj_dir.Id);
+					if (idx == -1) item.UnflagDir(Obj_dir.Id);
+					else mn_Dir_list.RemoveAt(idx);
 				}
-				mn_Song_list.ForEach(a => item.FlagSong(a));
+				mn_Dir_list.ForEach(a => item.FlagDir(a));
 			}
 			if (affrows > 0) return APIReturn.成功.SetMessage($"更新成功，影响行数：{affrows}");
 			return APIReturn.失败;
@@ -81,10 +80,10 @@ namespace cd.Module.Admin.Controllers {
 
 		[HttpPost("del")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Del([FromForm] int[] id) {
+		async public Task<APIReturn> _Del([FromForm] uint[] id) {
 			int affrows = 0;
-			foreach (int id2 in id)
-				affrows += await Tag.DeleteAsync(id2);
+			foreach (uint id2 in id)
+				affrows += await Role.DeleteAsync(id2);
 			if (affrows > 0) return APIReturn.成功.SetMessage($"删除成功，影响行数：{affrows}");
 			return APIReturn.失败;
 		}

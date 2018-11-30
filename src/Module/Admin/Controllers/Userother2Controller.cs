@@ -19,12 +19,12 @@ namespace cd.Module.Admin.Controllers {
 		public Userother2Controller(ILogger<Userother2Controller> logger) : base(logger) { }
 
 		[HttpGet]
-		async public Task<ActionResult> List([FromServices]IConfiguration cfg, [FromQuery] string key, [FromQuery] long?[] Userother_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
+		async public Task<ActionResult> List([FromQuery] string key, [FromQuery] long?[] Userother_id, [FromQuery] int limit = 20, [FromQuery] int page = 1) {
 			var select = Userother2.Select
 				.Where(!string.IsNullOrEmpty(key), "a.chinesename like {0} or a.xxxx like {0}", string.Concat("%", key, "%"));
 			if (Userother_id.Length > 0) select.WhereUserother_id(Userother_id);
 			var items = await select.Count(out var count)
-				.LeftJoin<Userother>("b", "b.id = a.userother_id").Page(page, limit).ToListAsync();
+				.LeftJoin(a => a.Obj_userother.Id == a.Userother_id).Page(page, limit).ToListAsync();
 			ViewBag.items = items;
 			ViewBag.count = count;
 			return View();

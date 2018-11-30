@@ -12,6 +12,8 @@ namespace cd.Model {
 	public partial class TopicInfo {
 		#region fields
 		private uint? _Id;
+		private int? _Topic_type_id;
+		private Topic_typeInfo _obj_topic_type;
 		private string _Carddata;
 		private TopicCARDTYPE? _Cardtype;
 		private ulong? _Clicks;
@@ -30,6 +32,7 @@ namespace cd.Model {
 		public string Stringify() {
 			return string.Concat(
 				_Id == null ? "null" : _Id.ToString(), "|",
+				_Topic_type_id == null ? "null" : _Topic_type_id.ToString(), "|",
 				_Carddata == null ? "null" : _Carddata.Replace("|", StringifySplit), "|",
 				_Cardtype == null ? "null" : _Cardtype.ToInt64().ToString(), "|",
 				_Clicks == null ? "null" : _Clicks.ToString(), "|",
@@ -42,19 +45,20 @@ namespace cd.Model {
 		}
 		public static TopicInfo Parse(string stringify) {
 			if (string.IsNullOrEmpty(stringify) || stringify == "null") return null;
-			string[] ret = stringify.Split(new char[] { '|' }, 10, StringSplitOptions.None);
-			if (ret.Length != 10) throw new Exception($"格式不正确，TopicInfo：{stringify}");
+			string[] ret = stringify.Split(new char[] { '|' }, 11, StringSplitOptions.None);
+			if (ret.Length != 11) throw new Exception($"格式不正确，TopicInfo：{stringify}");
 			TopicInfo item = new TopicInfo();
 			if (string.Compare("null", ret[0]) != 0) item.Id = uint.Parse(ret[0]);
-			if (string.Compare("null", ret[1]) != 0) item.Carddata = ret[1].Replace(StringifySplit, "|");
-			if (string.Compare("null", ret[2]) != 0) item.Cardtype = (TopicCARDTYPE)long.Parse(ret[2]);
-			if (string.Compare("null", ret[3]) != 0) item.Clicks = ulong.Parse(ret[3]);
-			if (string.Compare("null", ret[4]) != 0) item.Content = ret[4].Replace(StringifySplit, "|");
-			if (string.Compare("null", ret[5]) != 0) item.Create_time = new DateTime(long.Parse(ret[5]));
-			if (string.Compare("null", ret[6]) != 0) item.Order_time = new DateTime(long.Parse(ret[6]));
-			if (string.Compare("null", ret[7]) != 0) item.Test_addfiled = byte.Parse(ret[7]);
-			if (string.Compare("null", ret[8]) != 0) item.Title = ret[8].Replace(StringifySplit, "|");
-			if (string.Compare("null", ret[9]) != 0) item.Update_time = new DateTime(long.Parse(ret[9]));
+			if (string.Compare("null", ret[1]) != 0) item.Topic_type_id = int.Parse(ret[1]);
+			if (string.Compare("null", ret[2]) != 0) item.Carddata = ret[2].Replace(StringifySplit, "|");
+			if (string.Compare("null", ret[3]) != 0) item.Cardtype = (TopicCARDTYPE)long.Parse(ret[3]);
+			if (string.Compare("null", ret[4]) != 0) item.Clicks = ulong.Parse(ret[4]);
+			if (string.Compare("null", ret[5]) != 0) item.Content = ret[5].Replace(StringifySplit, "|");
+			if (string.Compare("null", ret[6]) != 0) item.Create_time = new DateTime(long.Parse(ret[6]));
+			if (string.Compare("null", ret[7]) != 0) item.Order_time = new DateTime(long.Parse(ret[7]));
+			if (string.Compare("null", ret[8]) != 0) item.Test_addfiled = byte.Parse(ret[8]);
+			if (string.Compare("null", ret[9]) != 0) item.Title = ret[9].Replace(StringifySplit, "|");
+			if (string.Compare("null", ret[10]) != 0) item.Update_time = new DateTime(long.Parse(ret[10]));
 			return item;
 		}
 		#endregion
@@ -72,6 +76,7 @@ namespace cd.Model {
 		public override string ToString() {
 			string json = string.Concat(
 				__jsonIgnore.ContainsKey("Id") ? string.Empty : string.Format(", Id : {0}", Id == null ? "null" : Id.ToString()), 
+				__jsonIgnore.ContainsKey("Topic_type_id") ? string.Empty : string.Format(", Topic_type_id : {0}", Topic_type_id == null ? "null" : Topic_type_id.ToString()), 
 				__jsonIgnore.ContainsKey("Carddata") ? string.Empty : string.Format(", Carddata : {0}", Carddata == null ? "null" : string.Format("'{0}'", Carddata.Replace("\\", "\\\\").Replace("\r\n", "\\r\\n").Replace("'", "\\'"))), 
 				__jsonIgnore.ContainsKey("Cardtype") ? string.Empty : string.Format(", Cardtype : {0}", Cardtype == null ? "null" : string.Format("'{0}'", Cardtype.ToDescriptionOrString().Replace("\\", "\\\\").Replace("\r\n", "\\r\\n").Replace("'", "\\'"))), 
 				__jsonIgnore.ContainsKey("Clicks") ? string.Empty : string.Format(", Clicks : {0}", Clicks == null ? "null" : Clicks.ToString()), 
@@ -86,6 +91,7 @@ namespace cd.Model {
 		public IDictionary ToBson(bool allField = false) {
 			IDictionary ht = new Hashtable();
 			if (allField || !__jsonIgnore.ContainsKey("Id")) ht["Id"] = Id;
+			if (allField || !__jsonIgnore.ContainsKey("Topic_type_id")) ht["Topic_type_id"] = Topic_type_id;
 			if (allField || !__jsonIgnore.ContainsKey("Carddata")) ht["Carddata"] = Carddata;
 			if (allField || !__jsonIgnore.ContainsKey("Cardtype")) ht["Cardtype"] = Cardtype?.ToDescriptionOrString();
 			if (allField || !__jsonIgnore.ContainsKey("Clicks")) ht["Clicks"] = Clicks;
@@ -107,6 +113,25 @@ namespace cd.Model {
 		[JsonProperty] public uint? Id {
 			get { return _Id; }
 			set { _Id = value; }
+		}
+
+		/// <summary>
+		/// 类型id
+		/// </summary>
+		[JsonProperty] public int? Topic_type_id {
+			get { return _Topic_type_id; }
+			set {
+				if (_Topic_type_id != value) _obj_topic_type = null;
+				_Topic_type_id = value;
+			}
+		}
+
+		public Topic_typeInfo Obj_topic_type {
+			get {
+				if (_obj_topic_type == null && _Topic_type_id != null) _obj_topic_type = BLL.Topic_type.GetItem(_Topic_type_id.Value);
+				return _obj_topic_type;
+			}
+			internal set { _obj_topic_type = value; }
 		}
 
 		/// <summary>

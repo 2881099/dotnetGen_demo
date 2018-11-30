@@ -1,6 +1,7 @@
 ﻿@{
 	Layout = "";
 	TopicInfo item = ViewBag.item;
+	var fk_Topic_types = Topic_type.Select.ToList();
 }
 
 <div class="box">
@@ -20,6 +21,15 @@
 								<td><input name="Id" type="text" readonly class="datepicker" style="width:20%;background-color:#ddd;" /></td>
 							</tr>
 						}
+						<tr>
+							<td>类型id</td>
+							<td>
+								<select name="Topic_type_id">
+									<option value="">------ 请选择 ------</option>
+									@foreach (var fk in fk_Topic_types) { <option value="@fk.Id">@fk.Name</option> }
+								</select>
+							</td>
+						</tr>
 						<tr>
 							<td>卡片渲染数据</td>
 							<td><textarea name="Carddata" style="width:100%;height:100px;" editor="ueditor"></textarea></td>

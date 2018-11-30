@@ -18,41 +18,17 @@
 				<table id="GridView1" cellspacing="0" rules="all" border="1" style="border-collapse:collapse;" class="table table-bordered table-hover">
 					<tr>
 						<th scope="col" style="width:2%;"><input type="checkbox" onclick="$('#GridView1 tbody tr').each(function (idx, el) { var chk = $(el).find('td:first input[type=\'checkbox\']')[0]; if (chk) chk.checked = !chk.checked; });" /></th>
-						<th scope="col">id</th>
-						<th scope="col">类型id</th>
-						<th scope="col">卡片渲染数据</th>
-						<th scope="col">卡片类型</th>
-						<th scope="col">点击次数</th>
-						<th scope="col">内容</th>
-						<th scope="col">创建时间</th>
-						<th scope="col">排序时间</th>
-						<th scope="col">测试添加的字段
-
-换行
-
-sdgsdg</th>
-						<th scope="col">标题</th>
-						<th scope="col">修改时间</th>
-						<th scope="col">&nbsp;</th>
+						<th scope="col">dir_id</th>
+						<th scope="col">role_id</th>
 						<th scope="col" style="width:5%;">&nbsp;</th>
 					</tr>
 					<tbody>
-						@foreach(TopicInfo item in ViewBag.items) {
+						@foreach(Role_dirInfo item in ViewBag.items) {
 							<tr>
-								<td><input type="checkbox" id="id" name="id" value="@item.Id" /></td>
-								<td>@item.Id</td>
-								<td>[@item.Topic_type_id] @item.Obj_topic_type?.Name</td>
-								<td>@item.Carddata</td>
-								<td>@item.Cardtype</td>
-								<td>@item.Clicks</td>
-								<td>@item.Content</td>
-								<td>@item.Create_time</td>
-								<td>@item.Order_time</td>
-								<td>@item.Test_addfiled</td>
-								<td>@item.Title</td>
-								<td>@item.Update_time</td>
-								<td><a href="../Post/?Topic_id=@item.Id">Post</a></td>
-							<td><a href="./edit?Id=@item.Id">修改</a></td>
+								<td><input type="checkbox" id="id" name="id" value="@item.Dir_id,@item.Role_id" /></td>
+								<td>[@item.Dir_id] @item.Obj_dir?.Title</td>
+								<td>[@item.Role_id] @item.Obj_role?.Name</td>
+								<td><a href="./edit?Dir_id=@item.Dir_id&Role_id=@item.Role_id">修改</a></td>
 							</tr>
 						}
 					</tbody>
@@ -65,7 +41,8 @@ sdgsdg</th>
 </div>
 
 @{
-	var fk_topic_types = Topic_type.Select.ToList();
+	var fk_dirs = Dir.Select.ToList();
+	var fk_roles = Role.Select.ToList();
 }
 <script type="text/javascript">
 	(function () {
@@ -81,7 +58,8 @@ sdgsdg</th>
 		var fqs = _clone(top.mainViewNav.query);
 		delete fqs.page;
 		var fsc = [
-			{ name: 'Topic_type', field: 'Topic_type_id', text: @Html.Json(fk_topic_types.Select(a => a.Name)), value: @Html.Json(fk_topic_types.Select(a => a.Id)) },
+			{ name: 'Dir', field: 'Dir_id', text: @Html.Json(fk_dirs.Select(a => a.Title)), value: @Html.Json(fk_dirs.Select(a => a.Id)) },
+			{ name: 'Role', field: 'Role_id', text: @Html.Json(fk_roles.Select(a => a.Name)), value: @Html.Json(fk_roles.Select(a => a.Id)) },
 			null
 		];
 		fsc.pop();
