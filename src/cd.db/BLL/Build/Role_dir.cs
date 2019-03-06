@@ -74,14 +74,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Role_dir_", item.Dir_id, "_,_", item.Role_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Role_dir:", item.Dir_id, "_,_", item.Role_id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static Role_dirInfo GetItem(uint Dir_id, uint Role_id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Role_dir_", Dir_id, "_,_", Role_id), itemCacheTimeout, () => Select.WhereDir_id(Dir_id).WhereRole_id(Role_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Role_dirInfo.Parse(str));
+		public static Role_dirInfo GetItem(uint Dir_id, uint Role_id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Role_dir:", Dir_id, "_,_", Role_id), itemCacheTimeout, () => Select.WhereDir_id(Dir_id).WhereRole_id(Role_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Role_dirInfo.Parse(str));
 
 		public static List<Role_dirInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -105,7 +105,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new Role_dirInfo { Dir_id = Dir_id, Role_id = Role_id });
 			return affrows;
 		}
-		async public static Task<Role_dirInfo> GetItemAsync(uint Dir_id, uint Role_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Role_dir_", Dir_id, "_,_", Role_id), itemCacheTimeout, () => Select.WhereDir_id(Dir_id).WhereRole_id(Role_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Role_dirInfo.Parse(str));
+		async public static Task<Role_dirInfo> GetItemAsync(uint Dir_id, uint Role_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Role_dir:", Dir_id, "_,_", Role_id), itemCacheTimeout, () => Select.WhereDir_id(Dir_id).WhereRole_id(Role_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Role_dirInfo.Parse(str));
 		public static Task<int> UpdateAsync(Role_dirInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(Role_dirInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -135,7 +135,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Role_dir_", item.Dir_id, "_,_", item.Role_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Role_dir:", item.Dir_id, "_,_", item.Role_id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}

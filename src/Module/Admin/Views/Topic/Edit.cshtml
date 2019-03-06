@@ -63,8 +63,20 @@ sdgsdg</td>
 							<td><input name="Test_addfiled" type="text" class="form-control" data-inputmask="'mask': '9', 'repeat': 6, 'greedy': false" data-mask style="width:200px;" /></td>
 						</tr>
 						<tr>
+							<td>set类型</td>
+							<td>
+								<select name="Test_setfield" data-placeholder="Select a set类型" class="form-control select2" multiple>
+									@foreach (object eo in Enum.GetValues(typeof(TopicTEST_SETFIELD))) { <option value="@eo">@eo</option> }
+								</select>
+							</td>
+						</tr>
+						<tr>
 							<td>标题</td>
 							<td><input name="Title" type="text" class="datepicker" style="width:60%;" /></td>
+						</tr>
+						<tr>
+							<td>类型2</td>
+							<td><input name="Tyyp2_id" type="text" class="form-control" data-inputmask="'mask': '9', 'repeat': 6, 'greedy': false" data-mask style="width:200px;" /></td>
 						</tr>
 						@if (item != null) {
 							<tr>

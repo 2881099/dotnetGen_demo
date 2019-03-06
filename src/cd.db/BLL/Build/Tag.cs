@@ -36,9 +36,7 @@ namespace cd.BLL {
 			/// 父标签
 			/// </summary>
 			Parent_id, 
-			/// <summary>
-			/// 名称
-			/// </summary>
+			Ddd, 
 			Name
 		}
 		#endregion
@@ -52,9 +50,10 @@ namespace cd.BLL {
 		/// </summary>
 		public static cd.DAL.Tag.SqlUpdateBuild UpdateDiyDangerous => new cd.DAL.Tag.SqlUpdateBuild();
 
-		public static TagInfo Insert(int? Parent_id, string Name) {
+		public static TagInfo Insert(int? Parent_id, decimal? Ddd, string Name) {
 			return Insert(new TagInfo {
 				Parent_id = Parent_id, 
+				Ddd = Ddd, 
 				Name = Name});
 		}
 		public static TagInfo Insert(TagInfo item) {
@@ -68,14 +67,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Tag_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Tag:", item.Id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static TagInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Tag_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TagInfo.Parse(str));
+		public static TagInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Tag:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TagInfo.Parse(str));
 
 		public static List<TagInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -95,13 +94,14 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new TagInfo { Id = Id });
 			return affrows;
 		}
-		async public static Task<TagInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Tag_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TagInfo.Parse(str));
+		async public static Task<TagInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Tag:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TagInfo.Parse(str));
 		public static Task<int> UpdateAsync(TagInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(TagInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
-		public static Task<TagInfo> InsertAsync(int? Parent_id, string Name) {
+		public static Task<TagInfo> InsertAsync(int? Parent_id, decimal? Ddd, string Name) {
 			return InsertAsync(new TagInfo {
 				Parent_id = Parent_id, 
+				Ddd = Ddd, 
 				Name = Name});
 		}
 		async public static Task<TagInfo> InsertAsync(TagInfo item) {
@@ -115,7 +115,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Tag_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Tag:", item.Id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -140,11 +140,11 @@ namespace cd.BLL {
 				return base.Where($"EXISTS({subConditionSql})");
 			}
 			public SelectBuild WhereId(params int[] Id) => this.Where1Or("a.`id` = {0}", Id);
-			/// <summary>
-			/// 名称，多个参数等于 OR 查询
-			/// </summary>
+			public SelectBuild WhereDdd(params decimal?[] Ddd) => this.Where1Or("a.`ddd` = {0}", Ddd);
+			public SelectBuild WhereDddRange(decimal? begin) => base.Where("a.`ddd` >= {0}", begin);
+			public SelectBuild WhereDddRange(decimal? begin, decimal? end) => end == null ? WhereDddRange(begin) : base.Where("a.`ddd` between {0} and {1}", begin, end);
 			public SelectBuild WhereName(params string[] Name) => this.Where1Or("a.`name` = {0}", Name);
-			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}

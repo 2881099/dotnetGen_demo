@@ -89,14 +89,16 @@ namespace cd.Model {
 			}
 			return BLL.Topic_type.Insert(this);
 		}
-		public TopicInfo AddTopic(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) => AddTopic(new TopicInfo {
+		public TopicInfo AddTopic(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, TopicTEST_SETFIELD? Test_setfield, string Title, int? Tyyp2_id) => AddTopic(new TopicInfo {
 				Carddata = Carddata, 
 				Cardtype = Cardtype, 
 				Clicks = Clicks, 
 				Content = Content, 
 				Order_time = Order_time, 
 				Test_addfiled = Test_addfiled, 
-				Title = Title});
+				Test_setfield = Test_setfield, 
+				Title = Title, 
+				Tyyp2_id = Tyyp2_id});
 		public TopicInfo AddTopic(TopicInfo item) {
 			item.Topic_type_id = this.Id;
 			return BLL.Topic.Insert(item);
@@ -113,14 +115,16 @@ namespace cd.Model {
 			}
 			return await BLL.Topic_type.InsertAsync(this);
 		}
-		async public Task<TopicInfo> AddTopicAsync(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) => await AddTopicAsync(new TopicInfo {
+		async public Task<TopicInfo> AddTopicAsync(string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, TopicTEST_SETFIELD? Test_setfield, string Title, int? Tyyp2_id) => await AddTopicAsync(new TopicInfo {
 				Carddata = Carddata, 
 				Cardtype = Cardtype, 
 				Clicks = Clicks, 
 				Content = Content, 
 				Order_time = Order_time, 
 				Test_addfiled = Test_addfiled, 
-				Title = Title});
+				Test_setfield = Test_setfield, 
+				Title = Title, 
+				Tyyp2_id = Tyyp2_id});
 		async public Task<TopicInfo> AddTopicAsync(TopicInfo item) {
 			item.Topic_type_id = this.Id;
 			return await BLL.Topic.InsertAsync(item);

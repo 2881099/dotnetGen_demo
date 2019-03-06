@@ -14,6 +14,7 @@ namespace cd.Model {
 		private int? _Id;
 		private int? _Parent_id;
 		private TagInfo _obj_tag;
+		private decimal? _Ddd;
 		private string _Name;
 		#endregion
 
@@ -25,16 +26,18 @@ namespace cd.Model {
 			return string.Concat(
 				_Id == null ? "null" : _Id.ToString(), "|",
 				_Parent_id == null ? "null" : _Parent_id.ToString(), "|",
+				_Ddd == null ? "null" : _Ddd.ToString(), "|",
 				_Name == null ? "null" : _Name.Replace("|", StringifySplit));
 		}
 		public static TagInfo Parse(string stringify) {
 			if (string.IsNullOrEmpty(stringify) || stringify == "null") return null;
-			string[] ret = stringify.Split(new char[] { '|' }, 3, StringSplitOptions.None);
-			if (ret.Length != 3) throw new Exception($"格式不正确，TagInfo：{stringify}");
+			string[] ret = stringify.Split(new char[] { '|' }, 4, StringSplitOptions.None);
+			if (ret.Length != 4) throw new Exception($"格式不正确，TagInfo：{stringify}");
 			TagInfo item = new TagInfo();
 			if (string.Compare("null", ret[0]) != 0) item.Id = int.Parse(ret[0]);
 			if (string.Compare("null", ret[1]) != 0) item.Parent_id = int.Parse(ret[1]);
-			if (string.Compare("null", ret[2]) != 0) item.Name = ret[2].Replace(StringifySplit, "|");
+			if (string.Compare("null", ret[2]) != 0) item.Ddd = decimal.Parse(ret[2]);
+			if (string.Compare("null", ret[3]) != 0) item.Name = ret[3].Replace(StringifySplit, "|");
 			return item;
 		}
 		#endregion
@@ -53,6 +56,7 @@ namespace cd.Model {
 			string json = string.Concat(
 				__jsonIgnore.ContainsKey("Id") ? string.Empty : string.Format(", Id : {0}", Id == null ? "null" : Id.ToString()), 
 				__jsonIgnore.ContainsKey("Parent_id") ? string.Empty : string.Format(", Parent_id : {0}", Parent_id == null ? "null" : Parent_id.ToString()), 
+				__jsonIgnore.ContainsKey("Ddd") ? string.Empty : string.Format(", Ddd : {0}", Ddd == null ? "null" : Ddd.ToString()), 
 				__jsonIgnore.ContainsKey("Name") ? string.Empty : string.Format(", Name : {0}", Name == null ? "null" : string.Format("'{0}'", Name.Replace("\\", "\\\\").Replace("\r\n", "\\r\\n").Replace("'", "\\'"))), " }");
 			return string.Concat("{", json.Substring(1));
 		}
@@ -60,6 +64,7 @@ namespace cd.Model {
 			IDictionary ht = new Hashtable();
 			if (allField || !__jsonIgnore.ContainsKey("Id")) ht["Id"] = Id;
 			if (allField || !__jsonIgnore.ContainsKey("Parent_id")) ht["Parent_id"] = Parent_id;
+			if (allField || !__jsonIgnore.ContainsKey("Ddd")) ht["Ddd"] = Ddd;
 			if (allField || !__jsonIgnore.ContainsKey("Name")) ht["Name"] = Name;
 			return ht;
 		}
@@ -94,9 +99,11 @@ namespace cd.Model {
 			internal set { _obj_tag = value; }
 		}
 
-		/// <summary>
-		/// 名称
-		/// </summary>
+		[JsonProperty] public decimal? Ddd {
+			get { return _Ddd; }
+			set { _Ddd = value; }
+		}
+
 		[JsonProperty] public string Name {
 			get { return _Name; }
 			set { _Name = value; }
@@ -132,7 +139,8 @@ namespace cd.Model {
 		public int UnflagSong(int? Song_id) => BLL.Song_tag.Delete(Song_id.Value, this.Id.Value);
 		public int UnflagSongALL() => BLL.Song_tag.DeleteByTag_id(this.Id);
 
-		public TagInfo AddTag(string Name) => AddTag(new TagInfo {
+		public TagInfo AddTag(decimal? Ddd, string Name) => AddTag(new TagInfo {
+				Ddd = Ddd, 
 				Name = Name});
 		public TagInfo AddTag(TagInfo item) {
 			item.Parent_id = this.Id;
@@ -163,7 +171,8 @@ namespace cd.Model {
 		async public Task<int> UnflagSongAsync(int? Song_id) => await BLL.Song_tag.DeleteAsync(Song_id.Value, this.Id.Value);
 		async public Task<int> UnflagSongALLAsync() => await BLL.Song_tag.DeleteByTag_idAsync(this.Id);
 
-		async public Task<TagInfo> AddTagAsync(string Name) => await AddTagAsync(new TagInfo {
+		async public Task<TagInfo> AddTagAsync(decimal? Ddd, string Name) => await AddTagAsync(new TagInfo {
+				Ddd = Ddd, 
 				Name = Name});
 		async public Task<TagInfo> AddTagAsync(TagInfo item) {
 			item.Parent_id = this.Id;

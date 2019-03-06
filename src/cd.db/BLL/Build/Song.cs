@@ -37,9 +37,6 @@ namespace cd.BLL {
 			/// 软删除
 			/// </summary>
 			Is_deleted, 
-			/// <summary>
-			/// 歌名
-			/// </summary>
 			Title, 
 			/// <summary>
 			/// 地址
@@ -75,14 +72,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Song_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Song:", item.Id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static SongInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Song_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : SongInfo.Parse(str));
+		public static SongInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Song:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : SongInfo.Parse(str));
 
 		public static List<SongInfo> GetItems() => Select.ToList();
 		public static SelectBuild SelectRaw => new SelectBuild(dal);
@@ -100,7 +97,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new SongInfo { Id = Id });
 			return affrows;
 		}
-		async public static Task<SongInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Song_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : SongInfo.Parse(str));
+		async public static Task<SongInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Song:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : SongInfo.Parse(str));
 		public static Task<int> UpdateAsync(SongInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(SongInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -122,7 +119,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Song_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Song:", item.Id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -149,16 +146,13 @@ namespace cd.BLL {
 			/// 软删除，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereIs_deleted(params bool?[] Is_deleted) => this.Where1Or("a.`is_deleted` = {0}", Is_deleted);
-			/// <summary>
-			/// 歌名，多个参数等于 OR 查询
-			/// </summary>
 			public SelectBuild WhereTitle(params string[] Title) => this.Where1Or("a.`title` = {0}", Title);
-			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			/// <summary>
 			/// 地址，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereUrl(params string[] Url) => this.Where1Or("a.`url` = {0}", Url);
-			public SelectBuild WhereUrlLike(string pattern, bool isNotLike = false) => this.Where($@"a.`url` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereUrlLike(string pattern, bool isNotLike = false) => this.Where($@"a.`url` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}

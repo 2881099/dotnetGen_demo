@@ -45,9 +45,10 @@ namespace cd.Module.Admin.Controllers {
 		/***************************************** POST *****************************************/
 		[HttpPost(@"add")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Add([FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
+		async public Task<APIReturn> _Add([FromForm] int? Parent_id, [FromForm] decimal? Ddd, [FromForm] string Name, [FromForm] int[] mn_Song) {
 			TagInfo item = new TagInfo();
 			item.Parent_id = Parent_id;
+			item.Ddd = Ddd;
 			item.Name = Name;
 			item = await Tag.InsertAsync(item);
 			//关联 Song
@@ -57,10 +58,11 @@ namespace cd.Module.Admin.Controllers {
 		}
 		[HttpPost(@"edit")]
 		[ValidateAntiForgeryToken]
-		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] int? Parent_id, [FromForm] string Name, [FromForm] int[] mn_Song) {
+		async public Task<APIReturn> _Edit([FromQuery] int Id, [FromForm] int? Parent_id, [FromForm] decimal? Ddd, [FromForm] string Name, [FromForm] int[] mn_Song) {
 			TagInfo item = await Tag.GetItemAsync(Id);
 			if (item == null) return APIReturn.记录不存在_或者没有权限;
 			item.Parent_id = Parent_id;
+			item.Ddd = Ddd;
 			item.Name = Name;
 			int affrows = await Tag.UpdateAsync(item);
 			//关联 Song

@@ -15,12 +15,12 @@ namespace cd.DAL {
 		public string Sort { get { return TSQL.Sort; } }
 		internal class TSQL {
 			internal static readonly string Table = "`tag`";
-			internal static readonly string Field = "a.`id`, a.`parent_id`, a.`name`";
+			internal static readonly string Field = "a.`id`, a.`parent_id`, a.`ddd`, a.`name`";
 			internal static readonly string Sort = "a.`id`";
 			internal static readonly string Returning = "; SELECT LAST_INSERT_ID();";
 			internal static readonly string Delete = "DELETE FROM `tag` WHERE ";
-			internal static readonly string InsertField = @"`parent_id`, `name`";
-			internal static readonly string InsertValues = @"?parent_id, ?name";
+			internal static readonly string InsertField = @"`parent_id`, `ddd`, `name`";
+			internal static readonly string InsertValues = @"?parent_id, ?ddd, ?name";
 			internal static readonly string InsertMultiFormat = @"INSERT INTO `tag`(" + InsertField + ") VALUES{0}";
 			internal static readonly string Insert = string.Format(InsertMultiFormat, $"({InsertValues}){Returning}");
 		}
@@ -37,7 +37,8 @@ namespace cd.DAL {
 			return new MySqlParameter[] {
 				GetParameter("?id", MySqlDbType.Int32, 11, item.Id), 
 				GetParameter("?parent_id", MySqlDbType.Int32, 11, item.Parent_id), 
-				GetParameter("?name", MySqlDbType.VarChar, 128, item.Name)};
+				GetParameter("?ddd", MySqlDbType.Decimal, 10, item.Ddd), 
+				GetParameter("?name", MySqlDbType.VarChar, 255, item.Name)};
 		}
 		public TagInfo GetItem(IDataReader dr) {
 			int dataIndex = -1;
@@ -45,14 +46,16 @@ namespace cd.DAL {
 		}
 		public object GetItem(IDataReader dr, ref int dataIndex) {
 			TagInfo item = new TagInfo();
-			if (!dr.IsDBNull(++dataIndex)) item.Id = (int?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 2; return null; }
+			if (!dr.IsDBNull(++dataIndex)) item.Id = (int?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 3; return null; }
 			if (!dr.IsDBNull(++dataIndex)) item.Parent_id = (int?)dr.GetInt32(dataIndex);
+			if (!dr.IsDBNull(++dataIndex)) item.Ddd = (decimal?)dr.GetDecimal(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Name = dr.GetString(dataIndex);
 			return item;
 		}
 		private void CopyItemAllField(TagInfo item, TagInfo newitem) {
 			item.Id = newitem.Id;
 			item.Parent_id = newitem.Parent_id;
+			item.Ddd = newitem.Ddd;
 			item.Name = newitem.Name;
 		}
 		#endregion
@@ -70,6 +73,7 @@ namespace cd.DAL {
 			var sub = new SqlUpdateBuild(new List<TagInfo> { item });
 			var ignore = ignoreFields?.ToDictionary(a => a, StringComparer.CurrentCultureIgnoreCase) ?? new Dictionary<string, string>();
 			if (ignore.ContainsKey("parent_id") == false) sub.SetParent_id(item.Parent_id);
+			if (ignore.ContainsKey("ddd") == false) sub.SetDdd(item.Ddd);
 			if (ignore.ContainsKey("name") == false) sub.SetName(item.Name);
 			return sub;
 		}
@@ -129,10 +133,20 @@ namespace cd.DAL {
 				return this.Set("`parent_id`", $"?parent_id_{_parameters.Count}", 
 					GetParameter($"?parent_id_{_parameters.Count}", MySqlDbType.Int32, 11, value));
 			}
+			public SqlUpdateBuild SetDdd(decimal? value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Ddd = value;
+				return this.Set("`ddd`", $"?ddd_{_parameters.Count}", 
+					GetParameter($"?ddd_{_parameters.Count}", MySqlDbType.Decimal, 10, value));
+			}
+			public SqlUpdateBuild SetDddIncrement(decimal value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Ddd += value;
+				return this.Set("`ddd`", $"ifnull(`ddd`, 0) + ?ddd_{_parameters.Count}", 
+					GetParameter($"?ddd_{_parameters.Count}", MySqlDbType.Decimal, 10, value));
+			}
 			public SqlUpdateBuild SetName(string value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Name = value;
 				return this.Set("`name`", $"?name_{_parameters.Count}", 
-					GetParameter($"?name_{_parameters.Count}", MySqlDbType.VarChar, 128, value));
+					GetParameter($"?name_{_parameters.Count}", MySqlDbType.VarChar, 255, value));
 			}
 		}
 		#endregion
@@ -149,8 +163,9 @@ namespace cd.DAL {
 		}
 		async public Task<(object result, int dataIndex)> GetItemAsync(MySqlDataReader dr, int dataIndex) {
 			TagInfo item = new TagInfo();
-			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (int?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 2; return (null, dataIndex); }
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (int?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 3; return (null, dataIndex); }
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Parent_id = (int?)dr.GetInt32(dataIndex);
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Ddd = (decimal?)dr.GetDecimal(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Name = dr.GetString(dataIndex);
 			return (item, dataIndex);
 		}

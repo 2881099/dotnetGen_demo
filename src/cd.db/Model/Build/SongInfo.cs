@@ -100,9 +100,6 @@ namespace cd.Model {
 			set { _Is_deleted = value; }
 		}
 
-		/// <summary>
-		/// 歌名
-		/// </summary>
 		[JsonProperty] public string Title {
 			get { return _Title; }
 			set { _Title = value; }

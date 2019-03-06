@@ -47,7 +47,7 @@ namespace cd.BLL {
 
 		public static int Update(DirInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => Update(item, new[] { ignore1, ignore2, ignore3 });
 		public static int Update(DirInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQuery();
-		public static cd.DAL.Dir.SqlUpdateBuild UpdateDiy(uint Id) => new cd.DAL.Dir.SqlUpdateBuild(new List<DirInfo> { itemCacheTimeout > 0 ? new DirInfo { Id = Id,  } : GetItem(Id) });
+		public static cd.DAL.Dir.SqlUpdateBuild UpdateDiy(uint Id) => new cd.DAL.Dir.SqlUpdateBuild(new List<DirInfo> { itemCacheTimeout <= 0 ? new DirInfo { Id = Id } : GetItem(Id) });
 		public static cd.DAL.Dir.SqlUpdateBuild UpdateDiy(List<DirInfo> dataSource) => new cd.DAL.Dir.SqlUpdateBuild(dataSource);
 		/// <summary>
 		/// 用于批量更新，不会更新缓存
@@ -70,16 +70,16 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 2];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Dir_", item.Id);
-				keys[keysIdx++] = string.Concat("cd_BLL_DirByPath_", item.Path);
+				keys[keysIdx++] = string.Concat("cd_BLL:Dir:", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:DirByPath:", item.Path);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static DirInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Dir_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
-		public static DirInfo GetItemByPath(string Path) => SqlHelper.CacheShell(string.Concat("cd_BLL_DirByPath_", Path), itemCacheTimeout, () => Select.WherePath(Path).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
+		public static DirInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Dir:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
+		public static DirInfo GetItemByPath(string Path) => SqlHelper.CacheShell(string.Concat("cd_BLL:DirByPath:", Path), itemCacheTimeout, () => Select.WherePath(Path).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
 
 		public static List<DirInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -93,13 +93,13 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(GetItem(Id));
 			return affrows;
 		}
-		async public static Task<DirInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Dir_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
+		async public static Task<DirInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Dir:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
 		async public static Task<int> DeleteByPathAsync(string Path) {
 			var affrows = await dal.DeleteByPathAsync(Path);
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(GetItemByPath(Path));
 			return affrows;
 		}
-		async public static Task<DirInfo> GetItemByPathAsync(string Path) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_DirByPath_", Path), itemCacheTimeout, () => Select.WherePath(Path).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
+		async public static Task<DirInfo> GetItemByPathAsync(string Path) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:DirByPath:", Path), itemCacheTimeout, () => Select.WherePath(Path).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : DirInfo.Parse(str));
 		public static Task<int> UpdateAsync(DirInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(DirInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -119,8 +119,8 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 2];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Dir_", item.Id);
-				keys[keysIdx++] = string.Concat("cd_BLL_DirByPath_", item.Path);
+				keys[keysIdx++] = string.Concat("cd_BLL:Dir:", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:DirByPath:", item.Path);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -145,12 +145,12 @@ namespace cd.BLL {
 			/// HttpMethod + Path，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WherePath(params string[] Path) => this.Where1Or("a.`path` = {0}", Path);
-			public SelectBuild WherePathLike(string pattern, bool isNotLike = false) => this.Where($@"a.`path` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WherePathLike(string pattern, bool isNotLike = false) => this.Where($@"a.`path` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			/// <summary>
 			/// 描述，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereTitle(params string[] Title) => this.Where1Or("a.`title` = {0}", Title);
-			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}

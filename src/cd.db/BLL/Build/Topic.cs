@@ -69,9 +69,17 @@ namespace cd.BLL {
 			/// </summary>
 			Test_addfiled, 
 			/// <summary>
+			/// set类型
+			/// </summary>
+			Test_setfield, 
+			/// <summary>
 			/// 标题
 			/// </summary>
 			Title, 
+			/// <summary>
+			/// 类型2
+			/// </summary>
+			Tyyp2_id, 
 			/// <summary>
 			/// 修改时间
 			/// </summary>
@@ -92,7 +100,7 @@ namespace cd.BLL {
 		/// 适用字段较少的表；避规后续改表风险，字段数较大请改用 Topic.Insert(TopicInfo item)
 		/// </summary>
 		[Obsolete]
-		public static TopicInfo Insert(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
+		public static TopicInfo Insert(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, TopicTEST_SETFIELD? Test_setfield, string Title, int? Tyyp2_id) {
 			return Insert(new TopicInfo {
 				Topic_type_id = Topic_type_id, 
 				Carddata = Carddata, 
@@ -101,7 +109,9 @@ namespace cd.BLL {
 				Content = Content, 
 				Order_time = Order_time, 
 				Test_addfiled = Test_addfiled, 
-				Title = Title});
+				Test_setfield = Test_setfield, 
+				Title = Title, 
+				Tyyp2_id = Tyyp2_id});
 		}
 		public static TopicInfo Insert(TopicInfo item) {
 			if (item.Create_time == null) item.Create_time = DateTime.Now;
@@ -116,14 +126,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Topic_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Topic:", item.Id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static TopicInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Topic_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
+		public static TopicInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Topic:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
 
 		public static List<TopicInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -141,7 +151,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new TopicInfo { Id = Id });
 			return affrows;
 		}
-		async public static Task<TopicInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Topic_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
+		async public static Task<TopicInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Topic:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : TopicInfo.Parse(str));
 		public static Task<int> UpdateAsync(TopicInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(TopicInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -149,7 +159,7 @@ namespace cd.BLL {
 		/// 适用字段较少的表；避规后续改表风险，字段数较大请改用 Topic.Insert(TopicInfo item)
 		/// </summary>
 		[Obsolete]
-		public static Task<TopicInfo> InsertAsync(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, string Title) {
+		public static Task<TopicInfo> InsertAsync(int? Topic_type_id, string Carddata, TopicCARDTYPE? Cardtype, ulong? Clicks, string Content, DateTime? Order_time, byte? Test_addfiled, TopicTEST_SETFIELD? Test_setfield, string Title, int? Tyyp2_id) {
 			return InsertAsync(new TopicInfo {
 				Topic_type_id = Topic_type_id, 
 				Carddata = Carddata, 
@@ -158,7 +168,9 @@ namespace cd.BLL {
 				Content = Content, 
 				Order_time = Order_time, 
 				Test_addfiled = Test_addfiled, 
-				Title = Title});
+				Test_setfield = Test_setfield, 
+				Title = Title, 
+				Tyyp2_id = Tyyp2_id});
 		}
 		async public static Task<TopicInfo> InsertAsync(TopicInfo item) {
 			if (item.Create_time == null) item.Create_time = DateTime.Now;
@@ -173,7 +185,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Topic_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Topic:", item.Id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -187,7 +199,7 @@ namespace cd.BLL {
 			public SelectBuild WhereTopic_type_id(params int?[] Topic_type_id) => this.Where1Or("a.`topic_type_id` = {0}", Topic_type_id);
 			public SelectBuild WhereTopic_type_id(Topic_type.SelectBuild select, bool isNotIn = false) => this.Where($"a.`topic_type_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
 			public SelectBuild WhereId(params uint[] Id) => this.Where1Or("a.`id` = {0}", Id);
-			public SelectBuild WhereCarddataLike(string pattern, bool isNotLike = false) => this.Where($@"a.`carddata` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereCarddataLike(string pattern, bool isNotLike = false) => this.Where($@"a.`carddata` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild WhereCardtype_IN(params TopicCARDTYPE?[] Cardtypes) => this.Where1Or("a.`cardtype` = {0}", Cardtypes);
 			/// <summary>
 			/// 卡片类型，多个参数等于 OR 查询
@@ -203,7 +215,7 @@ namespace cd.BLL {
 			/// 点击次数，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereClicks(params ulong?[] Clicks) => this.Where1Or("a.`clicks` = {0}", Clicks);
-			public SelectBuild WhereContentLike(string pattern, bool isNotLike = false) => this.Where($@"a.`content` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereContentLike(string pattern, bool isNotLike = false) => this.Where($@"a.`content` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild WhereCreate_timeRange(DateTime? begin) => base.Where("a.`create_time` >= {0}", begin);
 			public SelectBuild WhereCreate_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereCreate_timeRange(begin) : base.Where("a.`create_time` between {0} and {1}", begin, end);
 			public SelectBuild WhereOrder_timeRange(DateTime? begin) => base.Where("a.`order_time` >= {0}", begin);
@@ -216,11 +228,26 @@ namespace cd.BLL {
 			/// sdgsdg，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereTest_addfiled(params byte?[] Test_addfiled) => this.Where1Or("a.`test_addfiled` = {0}", Test_addfiled);
+			public SelectBuild WhereTest_setfield_IN(params TopicTEST_SETFIELD[] Test_setfields) => this.Where1Or("(a.`test_setfield` & {0}) = {0}", Test_setfields);
+			/// <summary>
+			/// set类型，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereTest_setfield(TopicTEST_SETFIELD Test_setfield1) => this.WhereTest_setfield_IN(Test_setfield1);
+			#region WhereTest_setfield
+			public SelectBuild WhereTest_setfield(TopicTEST_SETFIELD Test_setfield1, TopicTEST_SETFIELD Test_setfield2) => this.WhereTest_setfield_IN(Test_setfield1, Test_setfield2);
+			public SelectBuild WhereTest_setfield(TopicTEST_SETFIELD Test_setfield1, TopicTEST_SETFIELD Test_setfield2, TopicTEST_SETFIELD Test_setfield3) => this.WhereTest_setfield_IN(Test_setfield1, Test_setfield2, Test_setfield3);
+			public SelectBuild WhereTest_setfield(TopicTEST_SETFIELD Test_setfield1, TopicTEST_SETFIELD Test_setfield2, TopicTEST_SETFIELD Test_setfield3, TopicTEST_SETFIELD Test_setfield4) => this.WhereTest_setfield_IN(Test_setfield1, Test_setfield2, Test_setfield3, Test_setfield4);
+			public SelectBuild WhereTest_setfield(TopicTEST_SETFIELD Test_setfield1, TopicTEST_SETFIELD Test_setfield2, TopicTEST_SETFIELD Test_setfield3, TopicTEST_SETFIELD Test_setfield4, TopicTEST_SETFIELD Test_setfield5) => this.WhereTest_setfield_IN(Test_setfield1, Test_setfield2, Test_setfield3, Test_setfield4, Test_setfield5);
+			#endregion
 			/// <summary>
 			/// 标题，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereTitle(params string[] Title) => this.Where1Or("a.`title` = {0}", Title);
-			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereTitleLike(string pattern, bool isNotLike = false) => this.Where($@"a.`title` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
+			/// <summary>
+			/// 类型2，多个参数等于 OR 查询
+			/// </summary>
+			public SelectBuild WhereTyyp2_id(params int?[] Tyyp2_id) => this.Where1Or("a.`tyyp2_id` = {0}", Tyyp2_id);
 			public SelectBuild WhereUpdate_timeRange(DateTime? begin) => base.Where("a.`update_time` >= {0}", begin);
 			public SelectBuild WhereUpdate_timeRange(DateTime? begin, DateTime? end) => end == null ? WhereUpdate_timeRange(begin) : base.Where("a.`update_time` between {0} and {1}", begin, end);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }

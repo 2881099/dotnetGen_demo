@@ -80,14 +80,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Song_tag_", item.Song_id, "_,_", item.Tag_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Song_tag:", item.Song_id, "_,_", item.Tag_id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static Song_tagInfo GetItem(int Song_id, int Tag_id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Song_tag_", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
+		public static Song_tagInfo GetItem(int Song_id, int Tag_id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Song_tag:", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
 
 		public static List<Song_tagInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -111,7 +111,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new Song_tagInfo { Song_id = Song_id, Tag_id = Tag_id });
 			return affrows;
 		}
-		async public static Task<Song_tagInfo> GetItemAsync(int Song_id, int Tag_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Song_tag_", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
+		async public static Task<Song_tagInfo> GetItemAsync(int Song_id, int Tag_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Song_tag:", Song_id, "_,_", Tag_id), itemCacheTimeout, () => Select.WhereSong_id(Song_id).WhereTag_id(Tag_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Song_tagInfo.Parse(str));
 		public static Task<int> UpdateAsync(Song_tagInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(Song_tagInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -141,7 +141,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Song_tag_", item.Song_id, "_,_", item.Tag_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Song_tag:", item.Song_id, "_,_", item.Tag_id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}

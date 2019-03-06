@@ -38,7 +38,7 @@ namespace cd.DAL {
 				GetParameter("?id", MySqlDbType.Int32, 11, item.Id), 
 				GetParameter("?create_time", MySqlDbType.DateTime, -1, item.Create_time), 
 				GetParameter("?is_deleted", MySqlDbType.Bit, 1, item.Is_deleted), 
-				GetParameter("?title", MySqlDbType.VarChar, 128, item.Title), 
+				GetParameter("?title", MySqlDbType.VarChar, 255, item.Title), 
 				GetParameter("?url", MySqlDbType.VarChar, 255, item.Url)};
 		}
 		public SongInfo GetItem(IDataReader dr) {
@@ -141,7 +141,7 @@ namespace cd.DAL {
 			public SqlUpdateBuild SetTitle(string value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Title = value;
 				return this.Set("`title`", $"?title_{_parameters.Count}", 
-					GetParameter($"?title_{_parameters.Count}", MySqlDbType.VarChar, 128, value));
+					GetParameter($"?title_{_parameters.Count}", MySqlDbType.VarChar, 255, value));
 			}
 			public SqlUpdateBuild SetUrl(string value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Url = value;

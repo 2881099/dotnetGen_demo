@@ -73,14 +73,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Userother2_", item.Userother_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Userother2:", item.Userother_id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static Userother2Info GetItem(long Userother_id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Userother2_", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
+		public static Userother2Info GetItem(long Userother_id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Userother2:", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
 
 		public static List<Userother2Info> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -98,7 +98,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new Userother2Info { Userother_id = Userother_id });
 			return affrows;
 		}
-		async public static Task<Userother2Info> GetItemAsync(long Userother_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Userother2_", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
+		async public static Task<Userother2Info> GetItemAsync(long Userother_id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Userother2:", Userother_id), itemCacheTimeout, () => Select.WhereUserother_id(Userother_id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Userother2Info.Parse(str));
 		public static Task<int> UpdateAsync(Userother2Info item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(Userother2Info item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -129,7 +129,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Userother2_", item.Userother_id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Userother2:", item.Userother_id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -143,9 +143,9 @@ namespace cd.BLL {
 			public SelectBuild WhereUserother_id(params long?[] Userother_id) => this.Where1Or("a.`userother_id` = {0}", Userother_id);
 			public SelectBuild WhereUserother_id(Userother.SelectBuild select, bool isNotIn = false) => this.Where($"a.`userother_id` {(isNotIn ? "NOT IN" : "IN")} ({select.ToString("`id`")})");
 			public SelectBuild WhereChinesename(params string[] Chinesename) => this.Where1Or("a.`chinesename` = {0}", Chinesename);
-			public SelectBuild WhereChinesenameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`chinesename` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereChinesenameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`chinesename` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild WhereXxxx(params string[] Xxxx) => this.Where1Or("a.`xxxx` = {0}", Xxxx);
-			public SelectBuild WhereXxxxLike(string pattern, bool isNotLike = false) => this.Where($@"a.`xxxx` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereXxxxLike(string pattern, bool isNotLike = false) => this.Where($@"a.`xxxx` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}

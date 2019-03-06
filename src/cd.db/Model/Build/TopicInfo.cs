@@ -21,7 +21,9 @@ namespace cd.Model {
 		private DateTime? _Create_time;
 		private DateTime? _Order_time;
 		private byte? _Test_addfiled;
+		private TopicTEST_SETFIELD? _Test_setfield;
 		private string _Title;
+		private int? _Tyyp2_id;
 		private DateTime? _Update_time;
 		#endregion
 
@@ -40,13 +42,15 @@ namespace cd.Model {
 				_Create_time == null ? "null" : _Create_time.Value.Ticks.ToString(), "|",
 				_Order_time == null ? "null" : _Order_time.Value.Ticks.ToString(), "|",
 				_Test_addfiled == null ? "null" : _Test_addfiled.ToString(), "|",
+				_Test_setfield == null ? "null" : _Test_setfield.ToInt64().ToString(), "|",
 				_Title == null ? "null" : _Title.Replace("|", StringifySplit), "|",
+				_Tyyp2_id == null ? "null" : _Tyyp2_id.ToString(), "|",
 				_Update_time == null ? "null" : _Update_time.Value.Ticks.ToString());
 		}
 		public static TopicInfo Parse(string stringify) {
 			if (string.IsNullOrEmpty(stringify) || stringify == "null") return null;
-			string[] ret = stringify.Split(new char[] { '|' }, 11, StringSplitOptions.None);
-			if (ret.Length != 11) throw new Exception($"格式不正确，TopicInfo：{stringify}");
+			string[] ret = stringify.Split(new char[] { '|' }, 13, StringSplitOptions.None);
+			if (ret.Length != 13) throw new Exception($"格式不正确，TopicInfo：{stringify}");
 			TopicInfo item = new TopicInfo();
 			if (string.Compare("null", ret[0]) != 0) item.Id = uint.Parse(ret[0]);
 			if (string.Compare("null", ret[1]) != 0) item.Topic_type_id = int.Parse(ret[1]);
@@ -57,8 +61,10 @@ namespace cd.Model {
 			if (string.Compare("null", ret[6]) != 0) item.Create_time = new DateTime(long.Parse(ret[6]));
 			if (string.Compare("null", ret[7]) != 0) item.Order_time = new DateTime(long.Parse(ret[7]));
 			if (string.Compare("null", ret[8]) != 0) item.Test_addfiled = byte.Parse(ret[8]);
-			if (string.Compare("null", ret[9]) != 0) item.Title = ret[9].Replace(StringifySplit, "|");
-			if (string.Compare("null", ret[10]) != 0) item.Update_time = new DateTime(long.Parse(ret[10]));
+			if (string.Compare("null", ret[9]) != 0) item.Test_setfield = (TopicTEST_SETFIELD)long.Parse(ret[9]);
+			if (string.Compare("null", ret[10]) != 0) item.Title = ret[10].Replace(StringifySplit, "|");
+			if (string.Compare("null", ret[11]) != 0) item.Tyyp2_id = int.Parse(ret[11]);
+			if (string.Compare("null", ret[12]) != 0) item.Update_time = new DateTime(long.Parse(ret[12]));
 			return item;
 		}
 		#endregion
@@ -84,7 +90,9 @@ namespace cd.Model {
 				__jsonIgnore.ContainsKey("Create_time") ? string.Empty : string.Format(", Create_time : {0}", Create_time == null ? "null" : Create_time.Value.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds.ToString()), 
 				__jsonIgnore.ContainsKey("Order_time") ? string.Empty : string.Format(", Order_time : {0}", Order_time == null ? "null" : Order_time.Value.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds.ToString()), 
 				__jsonIgnore.ContainsKey("Test_addfiled") ? string.Empty : string.Format(", Test_addfiled : {0}", Test_addfiled == null ? "null" : Test_addfiled.ToString()), 
+				__jsonIgnore.ContainsKey("Test_setfield") ? string.Empty : string.Format(", Test_setfield : {0}", Test_setfield == null ? "null" : string.Format("[ '{0}' ]", string.Join("', '", Test_setfield.ToInt64().ToSet<TopicTEST_SETFIELD>().Select<TopicTEST_SETFIELD, string>(a => a.ToDescriptionOrString().Replace("\\", "\\\\").Replace("\r\n", "\\r\\n").Replace("'", "\\'"))))), 
 				__jsonIgnore.ContainsKey("Title") ? string.Empty : string.Format(", Title : {0}", Title == null ? "null" : string.Format("'{0}'", Title.Replace("\\", "\\\\").Replace("\r\n", "\\r\\n").Replace("'", "\\'"))), 
+				__jsonIgnore.ContainsKey("Tyyp2_id") ? string.Empty : string.Format(", Tyyp2_id : {0}", Tyyp2_id == null ? "null" : Tyyp2_id.ToString()), 
 				__jsonIgnore.ContainsKey("Update_time") ? string.Empty : string.Format(", Update_time : {0}", Update_time == null ? "null" : Update_time.Value.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds.ToString()), " }");
 			return string.Concat("{", json.Substring(1));
 		}
@@ -99,7 +107,9 @@ namespace cd.Model {
 			if (allField || !__jsonIgnore.ContainsKey("Create_time")) ht["Create_time"] = Create_time;
 			if (allField || !__jsonIgnore.ContainsKey("Order_time")) ht["Order_time"] = Order_time;
 			if (allField || !__jsonIgnore.ContainsKey("Test_addfiled")) ht["Test_addfiled"] = Test_addfiled;
+			if (allField || !__jsonIgnore.ContainsKey("Test_setfield")) ht["Test_setfield"] = Test_setfield?.ToInt64().ToSet<TopicTEST_SETFIELD>().Select(a => a.ToDescriptionOrString());
 			if (allField || !__jsonIgnore.ContainsKey("Title")) ht["Title"] = Title;
+			if (allField || !__jsonIgnore.ContainsKey("Tyyp2_id")) ht["Tyyp2_id"] = Tyyp2_id;
 			if (allField || !__jsonIgnore.ContainsKey("Update_time")) ht["Update_time"] = Update_time;
 			return ht;
 		}
@@ -195,11 +205,27 @@ namespace cd.Model {
 		}
 
 		/// <summary>
+		/// set类型
+		/// </summary>
+		[JsonProperty] public TopicTEST_SETFIELD? Test_setfield {
+			get { return _Test_setfield; }
+			set { _Test_setfield = value; }
+		}
+
+		/// <summary>
 		/// 标题
 		/// </summary>
 		[JsonProperty] public string Title {
 			get { return _Title; }
 			set { _Title = value; }
+		}
+
+		/// <summary>
+		/// 类型2
+		/// </summary>
+		[JsonProperty] public int? Tyyp2_id {
+			get { return _Tyyp2_id; }
+			set { _Tyyp2_id = value; }
 		}
 
 		/// <summary>
@@ -258,6 +284,10 @@ namespace cd.Model {
 	}
 	public enum TopicCARDTYPE {
 		视频 = 1, 图文01, 图文02, 链接
+	}
+	[Flags]
+	public enum TopicTEST_SETFIELD : long {
+		flag1 = 1, flag2 = 2, flag3 = 4
 	}
 }
 

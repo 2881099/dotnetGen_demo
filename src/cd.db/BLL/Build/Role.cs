@@ -65,14 +65,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Role_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Role:", item.Id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static RoleInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Role_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : RoleInfo.Parse(str));
+		public static RoleInfo GetItem(uint Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Role:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : RoleInfo.Parse(str));
 
 		public static List<RoleInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -86,7 +86,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new RoleInfo { Id = Id });
 			return affrows;
 		}
-		async public static Task<RoleInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Role_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : RoleInfo.Parse(str));
+		async public static Task<RoleInfo> GetItemAsync(uint Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Role:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : RoleInfo.Parse(str));
 		public static Task<int> UpdateAsync(RoleInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(RoleInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -106,7 +106,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Role_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Role:", item.Id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -133,7 +133,7 @@ namespace cd.BLL {
 			/// 角色名，多个参数等于 OR 查询
 			/// </summary>
 			public SelectBuild WhereName(params string[] Name) => this.Where1Or("a.`name` = {0}", Name);
-			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}

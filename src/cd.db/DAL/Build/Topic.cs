@@ -15,12 +15,12 @@ namespace cd.DAL {
 		public string Sort { get { return TSQL.Sort; } }
 		internal class TSQL {
 			internal static readonly string Table = "`topic`";
-			internal static readonly string Field = "a.`id`, a.`topic_type_id`, a.`carddata`, a.`cardtype`+0, a.`clicks`, a.`content`, a.`create_time`, a.`order_time`, a.`test_addfiled`, a.`title`, a.`update_time`";
+			internal static readonly string Field = "a.`id`, a.`topic_type_id`, a.`carddata`, a.`cardtype`+0, a.`clicks`, a.`content`, a.`create_time`, a.`order_time`, a.`test_addfiled`, a.`test_setfield`+0, a.`title`, a.`tyyp2_id`, a.`update_time`";
 			internal static readonly string Sort = "a.`id`";
 			internal static readonly string Returning = "; SELECT LAST_INSERT_ID();";
 			internal static readonly string Delete = "DELETE FROM `topic` WHERE ";
-			internal static readonly string InsertField = @"`topic_type_id`, `carddata`, `cardtype`, `clicks`, `content`, `create_time`, `order_time`, `test_addfiled`, `title`, `update_time`";
-			internal static readonly string InsertValues = @"?topic_type_id, ?carddata, ?cardtype, ?clicks, ?content, ?create_time, ?order_time, ?test_addfiled, ?title, ?update_time";
+			internal static readonly string InsertField = @"`topic_type_id`, `carddata`, `cardtype`, `clicks`, `content`, `create_time`, `order_time`, `test_addfiled`, `test_setfield`, `title`, `tyyp2_id`, `update_time`";
+			internal static readonly string InsertValues = @"?topic_type_id, ?carddata, ?cardtype, ?clicks, ?content, ?create_time, ?order_time, ?test_addfiled, ?test_setfield, ?title, ?tyyp2_id, ?update_time";
 			internal static readonly string InsertMultiFormat = @"INSERT INTO `topic`(" + InsertField + ") VALUES{0}";
 			internal static readonly string Insert = string.Format(InsertMultiFormat, $"({InsertValues}){Returning}");
 		}
@@ -44,7 +44,9 @@ namespace cd.DAL {
 				GetParameter("?create_time", MySqlDbType.DateTime, -1, item.Create_time), 
 				GetParameter("?order_time", MySqlDbType.DateTime, -1, item.Order_time), 
 				GetParameter("?test_addfiled", MySqlDbType.Byte, 4, item.Test_addfiled), 
+				GetParameter("?test_setfield", MySqlDbType.Set, -1, item.Test_setfield?.ToInt64()), 
 				GetParameter("?title", MySqlDbType.VarChar, 255, item.Title), 
+				GetParameter("?tyyp2_id", MySqlDbType.Int32, 11, item.Tyyp2_id), 
 				GetParameter("?update_time", MySqlDbType.DateTime, -1, item.Update_time)};
 		}
 		public TopicInfo GetItem(IDataReader dr) {
@@ -53,7 +55,7 @@ namespace cd.DAL {
 		}
 		public object GetItem(IDataReader dr, ref int dataIndex) {
 			TopicInfo item = new TopicInfo();
-			if (!dr.IsDBNull(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 10; return null; }
+			if (!dr.IsDBNull(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 12; return null; }
 			if (!dr.IsDBNull(++dataIndex)) item.Topic_type_id = (int?)dr.GetInt32(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Carddata = dr.GetString(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Cardtype = (TopicCARDTYPE?)dr.GetInt64(dataIndex);
@@ -62,7 +64,9 @@ namespace cd.DAL {
 			if (!dr.IsDBNull(++dataIndex)) item.Create_time = (DateTime?)dr.GetDateTime(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Order_time = (DateTime?)dr.GetDateTime(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Test_addfiled = (byte?)dr.GetByte(dataIndex);
+			if (!dr.IsDBNull(++dataIndex)) item.Test_setfield = (TopicTEST_SETFIELD?)dr.GetInt64(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Title = dr.GetString(dataIndex);
+			if (!dr.IsDBNull(++dataIndex)) item.Tyyp2_id = (int?)dr.GetInt32(dataIndex);
 			if (!dr.IsDBNull(++dataIndex)) item.Update_time = (DateTime?)dr.GetDateTime(dataIndex);
 			return item;
 		}
@@ -76,7 +80,9 @@ namespace cd.DAL {
 			item.Create_time = newitem.Create_time;
 			item.Order_time = newitem.Order_time;
 			item.Test_addfiled = newitem.Test_addfiled;
+			item.Test_setfield = newitem.Test_setfield;
 			item.Title = newitem.Title;
+			item.Tyyp2_id = newitem.Tyyp2_id;
 			item.Update_time = newitem.Update_time;
 		}
 		#endregion
@@ -101,7 +107,9 @@ namespace cd.DAL {
 			if (ignore.ContainsKey("create_time") == false) sub.SetCreate_time(item.Create_time);
 			if (ignore.ContainsKey("order_time") == false) sub.SetOrder_time(item.Order_time);
 			if (ignore.ContainsKey("test_addfiled") == false) sub.SetTest_addfiled(item.Test_addfiled);
+			if (ignore.ContainsKey("test_setfield") == false) sub.SetTest_setfield(item.Test_setfield);
 			if (ignore.ContainsKey("title") == false) sub.SetTitle(item.Title);
+			if (ignore.ContainsKey("tyyp2_id") == false) sub.SetTyyp2_id(item.Tyyp2_id);
 			if (ignore.ContainsKey("update_time") == false) sub.SetUpdate_time(item.Update_time);
 			return sub;
 		}
@@ -206,10 +214,33 @@ namespace cd.DAL {
 				return this.Set("`test_addfiled`", $"ifnull(`test_addfiled`, 0) + ?test_addfiled_{_parameters.Count}", 
 					GetParameter($"?test_addfiled_{_parameters.Count}", MySqlDbType.Byte, 4, value));
 			}
+			public SqlUpdateBuild SetTest_setfield(TopicTEST_SETFIELD? value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Test_setfield = value;
+				return this.Set("`test_setfield`", $"?test_setfield_{_parameters.Count}", 
+					GetParameter($"?test_setfield_{_parameters.Count}", MySqlDbType.Set, -1, value?.ToInt64()));
+			}
+			public SqlUpdateBuild SetTest_setfieldFlag(TopicTEST_SETFIELD value, bool isUnFlag = false) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Test_setfield = isUnFlag ? ((item.Test_setfield ?? 0) ^ value) : ((item.Test_setfield ?? 0) | value);
+				return this.Set("`test_setfield`", $"ifnull(`test_setfield`+0,0) {(isUnFlag ? '^' : '|')} ?test_setfield_{_parameters.Count}", 
+					GetParameter(string.Concat("?test_setfield_", _parameters.Count), MySqlDbType.Set, -1, value.ToInt64()));
+			}
+			public SqlUpdateBuild SetTest_setfieldUnFlag(TopicTEST_SETFIELD value) {
+				return this.SetTest_setfieldFlag(value, true);
+			}
 			public SqlUpdateBuild SetTitle(string value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Title = value;
 				return this.Set("`title`", $"?title_{_parameters.Count}", 
 					GetParameter($"?title_{_parameters.Count}", MySqlDbType.VarChar, 255, value));
+			}
+			public SqlUpdateBuild SetTyyp2_id(int? value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Tyyp2_id = value;
+				return this.Set("`tyyp2_id`", $"?tyyp2_id_{_parameters.Count}", 
+					GetParameter($"?tyyp2_id_{_parameters.Count}", MySqlDbType.Int32, 11, value));
+			}
+			public SqlUpdateBuild SetTyyp2_idIncrement(int value) {
+				if (_dataSource != null) foreach (var item in _dataSource) item.Tyyp2_id += value;
+				return this.Set("`tyyp2_id`", $"ifnull(`tyyp2_id`, 0) + ?tyyp2_id_{_parameters.Count}", 
+					GetParameter($"?tyyp2_id_{_parameters.Count}", MySqlDbType.Int32, 11, value));
 			}
 			public SqlUpdateBuild SetUpdate_time(DateTime? value) {
 				if (_dataSource != null) foreach (var item in _dataSource) item.Update_time = value;
@@ -231,7 +262,7 @@ namespace cd.DAL {
 		}
 		async public Task<(object result, int dataIndex)> GetItemAsync(MySqlDataReader dr, int dataIndex) {
 			TopicInfo item = new TopicInfo();
-			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 10; return (null, dataIndex); }
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Id = (uint?)dr.GetInt32(dataIndex); if (item.Id == null) { dataIndex += 12; return (null, dataIndex); }
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Topic_type_id = (int?)dr.GetInt32(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Carddata = dr.GetString(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Cardtype = (TopicCARDTYPE?)dr.GetInt64(dataIndex);
@@ -240,7 +271,9 @@ namespace cd.DAL {
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Create_time = (DateTime?)dr.GetDateTime(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Order_time = (DateTime?)dr.GetDateTime(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Test_addfiled = (byte?)dr.GetByte(dataIndex);
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Test_setfield = (TopicTEST_SETFIELD?)dr.GetInt64(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Title = dr.GetString(dataIndex);
+			if (!await dr.IsDBNullAsync(++dataIndex)) item.Tyyp2_id = (int?)dr.GetInt32(dataIndex);
 			if (!await dr.IsDBNullAsync(++dataIndex)) item.Update_time = (DateTime?)dr.GetDateTime(dataIndex);
 			return (item, dataIndex);
 		}

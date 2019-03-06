@@ -57,14 +57,14 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Topic_type_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Topic_type:", item.Id);
 			}
 			if (SqlHelper.Instance.CurrentThreadTransaction != null) SqlHelper.Instance.PreRemove(keys);
 			else SqlHelper.CacheRemove(keys);
 		}
 		#endregion
 
-		public static Topic_typeInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL_Topic_type_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Topic_typeInfo.Parse(str));
+		public static Topic_typeInfo GetItem(int Id) => SqlHelper.CacheShell(string.Concat("cd_BLL:Topic_type:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOne(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Topic_typeInfo.Parse(str));
 
 		public static List<Topic_typeInfo> GetItems() => Select.ToList();
 		public static SelectBuild Select => new SelectBuild(dal);
@@ -76,7 +76,7 @@ namespace cd.BLL {
 			if (itemCacheTimeout > 0) await RemoveCacheAsync(new Topic_typeInfo { Id = Id });
 			return affrows;
 		}
-		async public static Task<Topic_typeInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL_Topic_type_", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Topic_typeInfo.Parse(str));
+		async public static Task<Topic_typeInfo> GetItemAsync(int Id) => await SqlHelper.CacheShellAsync(string.Concat("cd_BLL:Topic_type:", Id), itemCacheTimeout, () => Select.WhereId(Id).ToOneAsync(), item => item?.Stringify() ?? "null", str => str == "null" ? null : Topic_typeInfo.Parse(str));
 		public static Task<int> UpdateAsync(Topic_typeInfo item, _ ignore1 = 0, _ ignore2 = 0, _ ignore3 = 0) => UpdateAsync(item, new[] { ignore1, ignore2, ignore3 });
 		public static Task<int> UpdateAsync(Topic_typeInfo item, _[] ignore) => dal.Update(item, ignore?.Where(a => a > 0).Select(a => Enum.GetName(typeof(_), a)).ToArray()).ExecuteNonQueryAsync();
 
@@ -95,7 +95,7 @@ namespace cd.BLL {
 			var keys = new string[items.Count() * 1];
 			var keysIdx = 0;
 			foreach (var item in items) {
-				keys[keysIdx++] = string.Concat("cd_BLL_Topic_type_", item.Id);
+				keys[keysIdx++] = string.Concat("cd_BLL:Topic_type:", item.Id);
 			}
 			await SqlHelper.CacheRemoveAsync(keys);
 		}
@@ -106,7 +106,7 @@ namespace cd.BLL {
 		public partial class SelectBuild : SelectBuild<Topic_typeInfo, SelectBuild> {
 			public SelectBuild WhereId(params int[] Id) => this.Where1Or("a.`id` = {0}", Id);
 			public SelectBuild WhereName(params string[] Name) => this.Where1Or("a.`name` = {0}", Name);
-			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "LIKE" : "NOT LIKE")} {{0}}", pattern);
+			public SelectBuild WhereNameLike(string pattern, bool isNotLike = false) => this.Where($@"a.`name` {(isNotLike ? "NOT LIKE" : "LIKE")} {{0}}", pattern);
 			public SelectBuild(IDAL dal) : base(dal, SqlHelper.Instance) { }
 		}
 	}
